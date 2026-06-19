@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>ZIKKY YouTube Downloader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #0a0a12;
+    color: #f0f0f0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background 0.3s;
+}
+
+body.light-mode {
+    background: #f5f7fa;
+    color: #2c3e50;
+}
+
+/* ===== NEON RAIN CANVAS - SUPER VISIBLE & DOMINANT ===== */
+#rainCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9999 !important;
+    opacity: 0.6 !important;
+    display: block !important;
+    background: transparent !important;
+    visibility: visible !important;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    mix-blend-mode: screen !important;
+}
+
+body.light-mode #rainCanvas {
+    opacity: 0.8 !important;
+    mix-blend-mode: overlay !important;
+}
+
+canvas {
+    display: block;
+}
+
+/* ===== MAIN CONTAINER ===== */
+.container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 30px 20px 80px;
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== HEADER ===== */
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 30px 20px;
+    background: rgba(20, 20, 32, 0.95);
+    backdrop-filter: blur(16px);
+    border-radius: 24px;
+    border: 2px solid rgba(139, 23, 182, 0.6) !important;
+    box-shadow: 0 0 40px rgba(139, 23, 182, 0.2), inset 0 0 40px rgba(139, 23, 182, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.header::before {
+    display: none;
+}
+
+.header h1 {
+    font-size: 2rem;
+    background: linear-gradient(135deg, #8b17b6, #00ffea, #ff2a6d);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    position: relative;
+    z-index: 2;
+}
+
+.header p {
+    color: #b0b0c0;
+    margin-top: 5px;
+    font-size: 0.9rem;
+    position: relative;
+    z-index: 2;
+}
+
+.header .badge {
+    display: inline-block;
+    padding: 4px 16px;
+    background: linear-gradient(135deg, rgba(139,23,182,0.3), rgba(0,255,234,0.2));
+    border-radius: 40px;
+    font-size: 0.7rem;
+    color: #00ffea;
+    margin-top: 8px;
+    border: 1px solid rgba(0,255,234,0.3);
+    position: relative;
+    z-index: 2;
+}
+
+/* ===== THEME TOGGLE ===== */
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: rgba(20, 20, 32, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(139,23,182,0.5);
+    border-radius: 40px;
+    padding: 10px 16px;
+    color: #f0f0f0;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.theme-toggle:hover {
+    border-color: #00ffea;
+    box-shadow: 0 0 20px rgba(0,255,234,0.2);
+}
+
+body.light-mode .theme-toggle {
+    background: rgba(255,255,255,0.9);
+    color: #2c3e50;
+}
+
+/* ===== INPUT SECTION ===== */
+.input-section {
+    background: rgba(20, 20, 32, 0.95);
+    backdrop-filter: blur(16px);
+    border-radius: 20px;
+    padding: 20px;
+    border: 2px solid rgba(139, 23, 182, 0.6) !important;
+    margin-bottom: 25px;
+    transition: all 0.3s;
+}
+
+body.light-mode .input-section {
+    background: rgba(255,255,255,0.95);
+    border-color: rgba(155,77,255,0.5) !important;
+}
+
+.input-wrapper {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.input-wrapper input {
+    flex: 1;
+    padding: 14px 18px;
+    background: rgba(0,0,0,0.3);
+    border: 2px solid rgba(139,23,182,0.5);
+    border-radius: 60px;
+    color: #f0f0f0;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s;
+    min-width: 200px;
+}
+
+body.light-mode .input-wrapper input {
+    background: rgba(0,0,0,0.05);
+    color: #2c3e50;
+}
+
+.input-wrapper input:focus {
+    border-color: #00ffea;
+    box-shadow: 0 0 20px rgba(0,255,234,0.2);
+}
+
+.input-wrapper input::placeholder {
+    color: #888;
+}
+
+.btn {
+    padding: 14px 28px;
+    border: none;
+    border-radius: 60px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #8b17b6, #ff2a6d);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(139,23,182,0.4);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ===== INFO CARD ===== */
+.info-card {
+    background: rgba(20, 20, 32, 0.95);
+    backdrop-filter: blur(16px);
+    border-radius: 20px;
+    border: 2px solid rgba(139, 23, 182, 0.6) !important;
+    overflow: hidden;
+    margin-bottom: 25px;
+    display: none;
+    animation: slideUp 0.4s ease;
+    transition: all 0.3s;
+}
+
+body.light-mode .info-card {
+    background: rgba(255,255,255,0.95);
+    border-color: rgba(155,77,255,0.5) !important;
+}
+
+.info-card.visible {
+    display: block;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.thumbnail-container {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%;
+    background: #0a0a12;
+    overflow: hidden;
+}
+
+.thumbnail-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.thumbnail-container .placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(139,23,182,0.2), rgba(0,255,234,0.1));
+    color: #888;
+    font-size: 3rem;
+}
+
+.video-details {
+    padding: 20px;
+}
+
+.video-details h2 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    line-height: 1.4;
+    color: #f0f0f0;
+    position: relative;
+    z-index: 2;
+}
+
+body.light-mode .video-details h2 {
+    color: #2c3e50;
+}
+
+.video-details .channel {
+    color: #00ffea;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 2;
+}
+
+.video-details .meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    color: #b0b0c0;
+    position: relative;
+    z-index: 2;
+}
+
+.video-details .meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+body.light-mode .video-details .channel {
+    color: #7b2cdf;
+}
+
+/* ===== FORMAT SELECTOR ===== */
+.format-selector {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.format-btn {
+    padding: 12px 30px;
+    border-radius: 60px;
+    border: 2px solid rgba(139,23,182,0.5);
+    background: transparent;
+    color: #b0b0c0;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+}
+
+.format-btn.active {
+    background: linear-gradient(135deg, #8b17b6, #5500ff);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 0 20px rgba(139,23,182,0.3);
+}
+
+.format-btn:hover:not(.active) {
+    border-color: #00ffea;
+    color: #00ffea;
+}
+
+.format-btn.audio.active {
+    background: linear-gradient(135deg, #00ffea, #00ccbb);
+    color: #0a0a12;
+}
+
+.format-btn.video.active {
+    background: linear-gradient(135deg, #ff2a6d, #cc0044);
+    color: white;
+}
+
+/* ===== DOWNLOAD SECTION ===== */
+.download-section {
+    text-align: center;
+    padding: 10px 0 20px;
+}
+
+.btn-download {
+    padding: 16px 50px;
+    background: linear-gradient(135deg, #00ff88, #00cc66);
+    color: #0a0a12;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 60px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-download:hover:not(:disabled) {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 40px rgba(0,255,136,0.4);
+}
+
+.btn-download:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ===== STATUS BAR ===== */
+.status-bar {
+    padding: 15px 20px;
+    background: rgba(20,20,32,0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    border: 2px solid rgba(139, 23, 182, 0.6) !important;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.85rem;
+    position: relative;
+    z-index: 2;
+}
+
+body.light-mode .status-bar {
+    background: rgba(255,255,255,0.9);
+    border-color: rgba(155,77,255,0.5) !important;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-dot.idle { background: #666; }
+.status-dot.loading { background: #ffaa00; animation: pulse 0.8s infinite; }
+.status-dot.success { background: #00ff88; }
+.status-dot.error { background: #ff2a6d; }
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* ===== ALL CARDS - UNIFIED BORDER SYSTEM ===== */
+.header,
+.input-section,
+.info-card,
+.status-bar,
+.footer-writings {
+    border: 2px solid rgba(139, 23, 182, 0.6) !important;
+}
+
+body.light-mode .header,
+body.light-mode .input-section,
+body.light-mode .info-card,
+body.light-mode .status-bar,
+body.light-mode .footer-writings {
+    border: 2px solid #1a1a1a !important;
+}
+
+/* ===== FOOTER WRITINGS ===== */
+.footer-writings {
+    margin-top: 30px;
+    padding: 25px 20px;
+    background: rgba(20, 20, 32, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #d0d0d0 !important;
+    line-height: 2;
+    opacity: 1 !important;
+    transition: all 0.3s;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 0 30px rgba(139, 23, 182, 0.1);
+}
+
+body.light-mode .footer-writings {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #2c3e50 !important;
+}
+
+.footer-writings:hover {
+    box-shadow: 0 0 50px rgba(139, 23, 182, 0.2);
+}
+
+.footer-writings .highlight {
+    color: #00ffea !important;
+}
+
+.footer-writings .highlight-pink {
+    color: #ff2a6d !important;
+}
+
+.footer-writings .highlight-purple {
+    color: #8b17b6 !important;
+}
+
+body.light-mode .footer-writings .highlight {
+    color: #7b2cdf !important;
+}
+
+body.light-mode .footer-writings .highlight-pink {
+    color: #cc0044 !important;
+}
+
+body.light-mode .footer-writings .highlight-purple {
+    color: #5500ff !important;
+}
+
+/* ===== CURSOR PARTICLE ===== */
+.cursor-particle {
+    position: fixed;
+    pointer-events: none;
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle, #00ffea, #8b17b6);
+    border-radius: 50%;
+    animation: particleFade 0.8s ease-out forwards;
+    z-index: 9999;
+}
+
+@keyframes particleFade {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0); }
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0a0a12;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #8b17b6, #00ffea);
+    border-radius: 10px;
+}
+
+/* ===== TOAST ANIMATION ===== */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.custom-toast {
+    animation: fadeInUp 0.3s ease !important;
+}
+
+/* ===== LOADING SPINNER ===== */
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+    .container {
+        padding: 15px;
+    }
+    .header h1 {
+        font-size: 1.4rem;
+        flex-wrap: wrap;
+    }
+    .input-wrapper {
+        flex-direction: column;
+    }
+    .input-wrapper input {
+        width: 100%;
+    }
+    .btn {
+        justify-content: center;
+    }
+    .format-selector {
+        gap: 8px;
+    }
+    .format-btn {
+        padding: 10px 20px;
+        font-size: 0.8rem;
+    }
+    .btn-download {
+        padding: 14px 30px;
+        font-size: 1rem;
+        width: 100%;
+        justify-content: center;
+    }
+    .video-details h2 {
+        font-size: 1rem;
+    }
+    .theme-toggle {
+        top: 10px;
+        right: 10px;
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+}
+
+/* ===== HIDE THEME TOGGLE (if needed) ===== */
+/* .theme-toggle { display: none !important; } */
+    </style>
+</head>
+<body>
+
+    <!-- ===== NEON RAIN CANVAS ===== -->
+    <canvas id="rainCanvas"></canvas>
+
+    <!-- ===== THEME TOGGLE ===== -->
+    <button class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+        <span id="themeLabel">Dark</span>
+    </button>
+
+    <!-- ===== MAIN CONTAINER ===== -->
+    <div class="container">
+
+        <!-- ===== HEADER ===== -->
+        <div class="header">
+            <h1>
+                <i class="fas fa-play" style="color:#ff2a6d;"></i>
+                ZIKKY Downloader
+                <i class="fas fa-download" style="color:#00ffea;"></i>
+            </h1>
+            <p>Paste any YouTube URL & download in seconds</p>
+            <span class="badge">🚀 by DEV ZIKKY TECH</span>
+        </div>
+
+        <!-- ===== INPUT SECTION ===== -->
+        <div class="input-section">
+            <div class="input-wrapper">
+                <input type="text" id="urlInput" placeholder="🔗 Paste YouTube URL here...">
+                <button class="btn btn-primary" id="getInfoBtn">
+                    <i class="fas fa-search"></i> Get Info
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== INFO CARD ===== -->
+        <div class="info-card" id="infoCard">
+            <div class="thumbnail-container" id="thumbnailContainer">
+                <div class="placeholder" id="thumbnailPlaceholder">
+                    <i class="fas fa-video"></i>
+                </div>
+                <img id="thumbnailImg" style="display:none;" alt="Thumbnail">
+            </div>
+            <div class="video-details">
+                <h2 id="videoTitle">Video Title</h2>
+                <div class="channel" id="videoChannel">📺 Channel Name</div>
+                <div class="meta">
+                    <span id="videoDuration"><i class="far fa-clock"></i> 0:00</span>
+                    <span id="videoViews"><i class="fas fa-eye"></i> 0 views</span>
+                    <span id="videoQuality"><i class="fas fa-hdmi"></i> 720p</span>
+                    <span id="videoSize"><i class="fas fa-database"></i> 0 MB</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== FORMAT SELECTOR ===== -->
+        <div class="format-selector" id="formatSelector" style="display:none;">
+            <button class="format-btn audio" data-format="audio">
+                <i class="fas fa-music"></i> Audio Only
+            </button>
+            <button class="format-btn video active" data-format="video">
+                <i class="fas fa-film"></i> Video
+            </button>
+        </div>
+
+        <!-- ===== DOWNLOAD SECTION ===== -->
+        <div class="download-section" id="downloadSection" style="display:none;">
+            <button class="btn-download" id="downloadBtn">
+                <i class="fas fa-arrow-down"></i> Download Now
+            </button>
+        </div>
+
+        <!-- ===== STATUS BAR ===== -->
+        <div class="status-bar">
+            <div>
+                <span class="status-dot idle" id="statusDot"></span>
+                <span id="statusText">Ready</span>
+            </div>
+            <div id="statusTime"><i class="far fa-clock"></i> <span id="currentTime"></span></div>
+        </div>
+
+        <!-- ===== FOOTER WRITINGS ===== -->
+        <div class="footer-writings">
+            <p>
+                <span class="highlight-purple">✦</span> Built with <span class="highlight">❤️</span> by 
+                <span class="highlight-pink">DEV ZIKKY TECH</span> 
+                <span class="highlight-purple">✦</span>
+            </p>
+            <p>
+                <span class="highlight">⚡</span> Fast Downloads • 
+                <span class="highlight-pink">🎵</span> Audio & Video • 
+                <span class="highlight">📺</span> High Quality • 
+                <span class="highlight-pink">🔒</span> Secure
+            </p>
+            <p style="font-size:0.7rem; opacity:0.6; margin-top:5px;">
+                <i class="fas fa-shield-alt"></i> All downloads are processed through secure APIs • 
+                <i class="fas fa-clock"></i> Powered by Nexray, BK9 & EliteProTech
+            </p>
+            <p style="font-size:0.65rem; opacity:0.4; margin-top:8px;">
+                © 2026 DEV ZIKKY TECH • ZIKKY Downloader v1.0
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // ===== ZIKKY YOUTUBE DOWNLOADER =====
+
+        // ===== CONFIGURATION =====
+        const APIS = {
+            // API 1: BK9 - Gets video info (quality, size, url)
+            bk9: (url) => `https://api.bk9.dev/download/youtube?url=${encodeURIComponent(url)}`,
+            // API 2: EliteProTech - Gets title and download URL
+            elite: (url) => `https://eliteprotech-apis.zone.id/ytdown?url=${encodeURIComponent(url)}&format=mp4`,
+            // API 3: Nexray - Gets thumbnail and details (video)
+            nexrayVideo: (url) => `https://api.nexray.eu.cc/downloader/ytmp4?url=${encodeURIComponent(url)}&resolusi=720`,
+            // API 4: Nexray - Gets audio download URL
+            nexrayAudio: (url) => `https://api.nexray.eu.cc/downloader/ytmp3?url=${encodeURIComponent(url)}`
+        };
+
+        // ===== DOM ELEMENTS =====
+        const urlInput = document.getElementById('urlInput');
+        const getInfoBtn = document.getElementById('getInfoBtn');
+        const infoCard = document.getElementById('infoCard');
+        const thumbnailImg = document.getElementById('thumbnailImg');
+        const thumbnailPlaceholder = document.getElementById('thumbnailPlaceholder');
+        const videoTitle = document.getElementById('videoTitle');
+        const videoChannel = document.getElementById('videoChannel');
+        const videoDuration = document.getElementById('videoDuration');
+        const videoViews = document.getElementById('videoViews');
+        const videoQuality = document.getElementById('videoQuality');
+        const videoSize = document.getElementById('videoSize');
+        const formatSelector = document.getElementById('formatSelector');
+        const downloadSection = document.getElementById('downloadSection');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const currentTime = document.getElementById('currentTime');
+        const themeToggle = document.getElementById('themeToggle');
+        const themeLabel = document.getElementById('themeLabel');
+
+        // ===== STATE =====
+        let currentData = null;
+        let selectedFormat = 'video';
+        let isDownloading = false;
+
+        // ===== THEME =====
+        let isDark = true;
+
+        themeToggle.addEventListener('click', () => {
+            isDark = !isDark;
+            document.body.classList.toggle('light-mode', !isDark);
+            themeToggle.innerHTML = isDark ?
+                '<i class="fas fa-moon"></i> <span id="themeLabel">Dark</span>' :
+                '<i class="fas fa-sun"></i> <span id="themeLabel">Light</span>';
+            localStorage.setItem('zikky_theme', isDark ? 'dark' : 'light');
+        });
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('zikky_theme');
+        if (savedTheme === 'light') {
+            isDark = false;
+            document.body.classList.add('light-mode');
+            themeToggle.innerHTML = '<i class="fas fa-sun"></i> <span id="themeLabel">Light</span>';
+        }
+
+       // ===== NEON RAIN CANVAS =====
+const canvas = document.getElementById('rainCanvas');
+const ctx = canvas.getContext('2d');
+let width = window.innerWidth;
+let height = window.innerHeight;
+let rainDrops = [];
+
+function initRain() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+    
+    const columns = Math.floor(width / 25);
+    rainDrops = [];
+    for (let i = 0; i < columns; i++) {
+        rainDrops.push({
+            x: i * 25 + Math.random() * 10,
+            y: Math.random() * height,
+            speed: 1 + Math.random() * 4,
+            length: 15 + Math.random() * 25,
+            opacity: 0.2 + Math.random() * 0.5
+        });
+    }
+    console.log('🌧️ Rain drops initialized:', rainDrops.length);
+}
+
+function drawRain() {
+    ctx.clearRect(0, 0, width, height);
+    const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+    
+    rainDrops.forEach(drop => {
+        const alpha = drop.opacity * 0.6;
+        ctx.fillStyle = `rgba(0, 255, 234, ${alpha})`;
+        ctx.font = `${14 + Math.random() * 4}px monospace`;
+        ctx.textAlign = 'center';
+        
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(char, drop.x, drop.y);
+        
+        drop.y += drop.speed;
+        if (drop.y > height) {
+            drop.y = -20;
+            drop.x = Math.random() * width;
+            drop.speed = 1 + Math.random() * 4;
+        }
+    });
+    
+    requestAnimationFrame(drawRain);
+}
+
+// Start rain
+initRain();
+window.addEventListener('resize', initRain);
+drawRain();
+console.log('🌧️ Neon rain started!');
+
+        // ===== CURSOR PARTICLES =====
+        document.addEventListener('click', (e) => {
+            for (let i = 0; i < 6; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'cursor-particle';
+                particle.style.left = (e.clientX + (Math.random() - 0.5) * 30) + 'px';
+                particle.style.top = (e.clientY + (Math.random() - 0.5) * 30) + 'px';
+                particle.style.width = (4 + Math.random() * 6) + 'px';
+                particle.style.height = particle.style.width;
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 800);
+            }
+        });
+
+        // ===== UTILITIES =====
+        function setStatus(type, message) {
+            statusDot.className = `status-dot ${type}`;
+            statusText.textContent = message;
+        }
+
+        function updateTime() {
+            currentTime.textContent = new Date().toLocaleTimeString();
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        function showToast(message, type = 'info') {
+            const existing = document.querySelector('.custom-toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = 'custom-toast';
+            const colors = {
+                success: '#00ff88',
+                error: '#ff2a6d',
+                info: '#00ffea',
+                warning: '#ffaa00'
+            };
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 30px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(20,20,32,0.95);
+                backdrop-filter: blur(10px);
+                padding: 14px 30px;
+                border-radius: 60px;
+                border: 2px solid ${colors[type] || colors.info};
+                color: white;
+                z-index: 10000;
+                font-size: 0.9rem;
+                max-width: 90%;
+                text-align: center;
+                animation: fadeInUp 0.3s ease;
+                box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ===== API CALLS =====
+        async function fetchWithTimeout(url, timeout = 15000) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+            try {
+                const response = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                return response;
+            } catch (error) {
+                clearTimeout(timeoutId);
+                throw error;
+            }
+        }
+
+        async function getVideoInfo(url) {
+            setStatus('loading', 'Fetching video info...');
+            getInfoBtn.disabled = true;
+            getInfoBtn.innerHTML = '<span class="spinner"></span> Loading...';
+
+            try {
+                // Try Nexray first (gives thumbnail, duration, quality)
+                const nexrayRes = await fetchWithTimeout(APIS.nexrayVideo(url));
+                let nexrayData = null;
+                if (nexrayRes.ok) {
+                    nexrayData = await nexrayRes.json();
+                }
+
+                // Try BK9 for size and quality
+                const bk9Res = await fetchWithTimeout(APIS.bk9(url));
+                let bk9Data = null;
+                if (bk9Res.ok) {
+                    bk9Data = await bk9Res.json();
+                }
+
+                // Try EliteProTech for title fallback
+                const eliteRes = await fetchWithTimeout(APIS.elite(url));
+                let eliteData = null;
+                if (eliteRes.ok) {
+                    eliteData = await eliteRes.json();
+                }
+
+                // Combine data from all APIs
+                const result = {};
+
+                // Title
+                if (nexrayData?.result?.title) result.title = nexrayData.result.title;
+                else if (eliteData?.title) result.title = eliteData.title;
+                else if (bk9Data?.BK9?.filename) result.title = bk9Data.BK9.filename.replace('.mp4', '');
+                else result.title = 'Untitled Video';
+
+                // Thumbnail
+                if (nexrayData?.result?.thumbnail) result.thumbnail = nexrayData.result.thumbnail;
+                else result.thumbnail = `https://img.youtube.com/vi/${extractVideoId(url)}/hqdefault.jpg`;
+
+                // Duration
+                if (nexrayData?.result?.duration !== undefined) {
+                    const dur = nexrayData.result.duration;
+                    result.duration = dur < 60 ? `${Math.floor(dur)}s` : `${Math.floor(dur/60)}:${String(Math.floor(dur%60)).padStart(2,'0')}`;
+                } else result.duration = 'N/A';
+
+                // Quality
+                if (nexrayData?.result?.resolusi) result.quality = `${nexrayData.result.resolusi}p`;
+                else if (bk9Data?.BK9?.quality) result.quality = bk9Data.BK9.quality;
+                else result.quality = '720p';
+
+                // Size
+                if (bk9Data?.BK9?.size) result.size = bk9Data.BK9.size;
+                else result.size = 'Unknown';
+
+                // Views (not available from APIs, use placeholder)
+                result.views = 'N/A';
+
+                // Channel (not available from APIs, use placeholder)
+                result.channel = 'YouTube Video';
+
+                // Store download URLs from all sources
+                result.downloadUrls = {
+                    video: [],
+                    audio: []
+                };
+
+                // Video URLs
+                if (bk9Data?.BK9?.url) {
+                    result.downloadUrls.video.push({ url: bk9Data.BK9.url, source: 'BK9' });
+                }
+                if (nexrayData?.result?.url) {
+                    result.downloadUrls.video.push({ url: nexrayData.result.url, source: 'Nexray' });
+                }
+                if (eliteData?.downloadURL) {
+                    result.downloadUrls.video.push({ url: eliteData.downloadURL, source: 'EliteProTech' });
+                }
+
+                // Audio URLs (try Nexray audio API)
+                try {
+                    const audioRes = await fetchWithTimeout(APIS.nexrayAudio(url));
+                    if (audioRes.ok) {
+                        const audioData = await audioRes.json();
+                        if (audioData?.result?.url) {
+                            result.downloadUrls.audio.push({ url: audioData.result.url, source: 'Nexray Audio' });
+                        }
+                    }
+                } catch (e) {
+                    // Audio API failed, will use fallback
+                }
+
+                currentData = result;
+                displayInfo(result);
+                setStatus('success', '✅ Video found!');
+
+            } catch (error) {
+                console.error('Error:', error);
+                setStatus('error', '❌ Failed to fetch video info');
+                showToast('Failed to fetch video info. Please check the URL and try again.', 'error');
+            } finally {
+                getInfoBtn.disabled = false;
+                getInfoBtn.innerHTML = '<i class="fas fa-search"></i> Get Info';
+            }
+        }
+
+        function extractVideoId(url) {
+            const match = url.match(/(?:v=|\/)([0-9A-Za-z_-]{11})(?:[?&]|$)/);
+            return match ? match[1] : '';
+        }
+
+        // ===== DISPLAY INFO =====
+        function displayInfo(data) {
+            infoCard.classList.add('visible');
+            formatSelector.style.display = 'flex';
+            downloadSection.style.display = 'block';
+
+            // Thumbnail
+            if (data.thumbnail) {
+                thumbnailImg.src = data.thumbnail;
+                thumbnailImg.style.display = 'block';
+                thumbnailPlaceholder.style.display = 'none';
+                thumbnailImg.onerror = () => {
+                    thumbnailImg.style.display = 'none';
+                    thumbnailPlaceholder.style.display = 'flex';
+                };
+            } else {
+                thumbnailImg.style.display = 'none';
+                thumbnailPlaceholder.style.display = 'flex';
+            }
+
+            // Details
+            videoTitle.textContent = data.title || 'Untitled';
+            videoChannel.textContent = `📺 ${data.channel || 'YouTube Video'}`;
+            videoDuration.textContent = `⏱️ ${data.duration || 'N/A'}`;
+            videoViews.textContent = `👁️ ${data.views || 'N/A'}`;
+            videoQuality.textContent = `🎬 ${data.quality || '720p'}`;
+            videoSize.textContent = `💾 ${data.size || 'Unknown'}`;
+
+            // Reset format selection
+            selectedFormat = 'video';
+            document.querySelectorAll('.format-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.format-btn.video')?.classList.add('active');
+
+            showToast('✅ Video info loaded!', 'success');
+        }
+
+        // ===== FORMAT SELECTION =====
+        document.querySelectorAll('.format-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedFormat = btn.dataset.format;
+                showToast(`🎵 ${selectedFormat === 'audio' ? 'Audio' : 'Video'} selected`, 'info');
+            });
+        });
+
+        // ===== DOWNLOAD =====
+        downloadBtn.addEventListener('click', async () => {
+            if (isDownloading) return;
+            if (!currentData) {
+                showToast('Please get video info first', 'warning');
+                return;
+            }
+
+            const urls = currentData.downloadUrls[selectedFormat];
+            if (!urls || urls.length === 0) {
+                showToast(`No ${selectedFormat} download URL available`, 'error');
+                return;
+            }
+
+            isDownloading = true;
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = '<span class="spinner"></span> Downloading...';
+            setStatus('loading', `⬇️ Downloading ${selectedFormat}...`);
+
+            try {
+                // Try each URL until one works
+                let downloaded = false;
+                for (const source of urls) {
+                    try {
+                        const response = await fetchWithTimeout(source.url, 30000);
+                        if (response.ok) {
+                            const blob = await response.blob();
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            const ext = selectedFormat === 'audio' ? 'mp3' : 'mp4';
+                            a.download = `${currentData.title || 'video'}.${ext}`;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(url);
+                            downloaded = true;
+                            showToast('✅ Download started!', 'success');
+                            setStatus('success', '✅ Download complete!');
+                            break;
+                        }
+                    } catch (e) {
+                        console.log(`Failed with ${source.source}:`, e);
+                        continue;
+                    }
+                }
+
+                if (!downloaded) {
+                    // If direct download fails, open the URL in new tab
+                    const firstUrl = urls[0].url;
+                    if (firstUrl) {
+                        window.open(firstUrl, '_blank');
+                        showToast('📤 Opening download URL in new tab', 'info');
+                        setStatus('success', '✅ Download URL opened');
+                    } else {
+                        throw new Error('No working download URL');
+                    }
+                }
+
+            } catch (error) {
+                console.error('Download error:', error);
+                showToast('❌ Download failed. Please try again.', 'error');
+                setStatus('error', '❌ Download failed');
+            } finally {
+                isDownloading = false;
+                downloadBtn.disabled = false;
+                downloadBtn.innerHTML = '<i class="fas fa-arrow-down"></i> Download Now';
+            }
+        });
+
+        // ===== GET INFO ON ENTER =====
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                getInfoBtn.click();
+            }
+        });
+
+        // ===== GET INFO BUTTON =====
+        getInfoBtn.addEventListener('click', () => {
+            const url = urlInput.value.trim();
+            if (!url) {
+                showToast('⚠️ Please enter a YouTube URL', 'warning');
+                return;
+            }
+            if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
+                showToast('⚠️ Please enter a valid YouTube URL', 'warning');
+                return;
+            }
+            getVideoInfo(url);
+        });
+
+        // ===== ADD TOAST ANIMATION =====
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInUp {
+                from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+                to { opacity: 1; transform: translateX(-50%) translateY(0); }
+            }
+            .custom-toast {
+                animation: fadeInUp 0.3s ease !important;
+            }
+        `;
+        document.head.appendChild(style);
+
+        console.log('🚀 ZIKKY YouTube Downloader v1.0');
+        console.log('✨ Powered by DEV ZIKKY TECH');
+        console.log('📺 APIs: BK9, EliteProTech, Nexray');
+    </script>
+</body>
+</html>
+
