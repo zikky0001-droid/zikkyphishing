@@ -310,15 +310,15 @@ You are free to fork, edit, and redistribute — for educational purposes only. 
 ---
 
 <div align="center">
-```
+
 ⭐ If this helped you understand phishing better, star the repo.
 
 ZIKKY Phishing Awareness Lab — learn the attack, build the defense.
 
 Built with ☕ and 🌙 by Dev Zikky from Lagos, Nigeria 🇳🇬
 
-Educate. Don't exploit. 🛡️
-```
+Educate. Don't exploit. 🛡️ 
+
 </div>
 
 <p align="center">
@@ -330,4 +330,3 @@ Educate. Don't exploit. 🛡️
 <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=100&section=footer" width="100%"/>
 
 </div>
-```
